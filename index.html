@@ -541,7 +541,7 @@ body.locked #auth-gate{display:grid}
       else say('Could not send the link: '+error.message,'bad');
       return;
     }
-    say(`Check <b>${email.replace(/[<>&"]/g,'')}</b> for a sign-in link. It works once and expires in an hour. Open it on this device.`,'ok');
+    say(`Check <b>${email.replace(/[<>&"]/g,'')}</b> for a sign-in link. It works once and expires in 15 minutes. Open it on this device.`,'ok');
   });
 
   document.getElementById('sign-out').addEventListener('click',async()=>{
