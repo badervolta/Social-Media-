@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Volta Social Media Command Centre</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: sticky top bar + left nav. Inbox reads summary → filters → list | detail split. Detail becomes a sheet below 1180px. */
+:root{
+  --bg:#f5f4f9; --surface:#ffffff; --surface-2:#efedf5; --border:#e1dee9; --border-strong:#cbc6d7;
+  --fg:#16141d; --fg-2:#4a4658; --fg-3:#706b80;
+  --accent:#6a3fe0; --accent-fg:#ffffff; --accent-soft:#eee8fd;
+  --label:#c2410c;
+  --urgent:#b42323; --urgent-soft:#fcebeb;
+  --needs:#9a4d00; --needs-soft:#fdf0de;
+  --info:#2b5cb0; --info-soft:#e7eefa;
+  --done:#1d7346; --done-soft:#e2f3e9;
+  --li:#1d63b0; --li-soft:#e5eefa; --fb:#3d55c7; --fb-soft:#e8ebfa; --ig:#b8336f; --ig-soft:#fae8f0;
+  --shadow:0 1px 2px rgba(22,20,29,.05),0 6px 20px rgba(22,20,29,.06);
+  --overlay:rgba(22,20,29,.4);
+  --rainbow:linear-gradient(90deg,#F97316,#EC4899 30%,#8B5CF6 55%,#3B82F6 78%,#14B8A6);
+  --font:'Plus Jakarta Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:10px; --hdr:60px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0d0c12; --surface:#16141d; --surface-2:#1e1b28; --border:#2b2838; --border-strong:#3d394d;
+  --fg:#f2f0f7; --fg-2:#bdb8cb; --fg-3:#8f8aa0;
+  --accent:#a78bfa; --accent-fg:#16101f; --accent-soft:#2a2142;
+  --label:#fb8a3c;
+  --urgent:#f58a8a; --urgent-soft:#3a1719; --needs:#f5b74a; --needs-soft:#36270d;
+  --info:#86adff; --info-soft:#17223b; --done:#5fd394; --done-soft:#112d1f;
+  --li:#7fb0ef; --li-soft:#15233a; --fb:#98a8f5; --fb-soft:#1b2040; --ig:#f08ab8; --ig-soft:#371726;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); --overlay:rgba(0,0,0,.6);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0d0c12; --surface:#16141d; --surface-2:#1e1b28; --border:#2b2838; --border-strong:#3d394d;
+  --fg:#f2f0f7; --fg-2:#bdb8cb; --fg-3:#8f8aa0;
+  --accent:#a78bfa; --accent-fg:#16101f; --accent-soft:#2a2142;
+  --label:#fb8a3c;
+  --urgent:#f58a8a; --urgent-soft:#3a1719; --needs:#f5b74a; --needs-soft:#36270d;
+  --info:#86adff; --info-soft:#17223b; --done:#5fd394; --done-soft:#112d1f;
+  --li:#7fb0ef; --li-soft:#15233a; --fb:#98a8f5; --fb-soft:#1b2040; --ig:#f08ab8; --ig-soft:#371726;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); --overlay:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Top bar */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--surface);border-bottom:1px solid var(--border)}
+.topbar::before{content:"";display:block;height:3px;background:var(--rainbow)}
+.topbar-in{display:flex;align-items:center;gap:16px;min-height:var(--hdr);padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand b{font-weight:800;font-size:18px;letter-spacing:-.02em}
+.brand span{color:var(--fg-2);font-weight:600;font-size:14px}
+.proto{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label);border:1px solid currentColor;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.clock{font-size:12px;color:var(--fg-2);display:flex;align-items:center;gap:6px}
+.clock .dot{width:7px;height:7px;border-radius:50%;background:var(--fg-3)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border-strong);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:600;font-size:13px;line-height:1.2;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.primary:hover{filter:brightness(1.07);background:var(--accent)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.danger{color:var(--urgent);border-color:color-mix(in srgb,var(--urgent) 45%,var(--border))}
+.btn.ok{color:var(--done);border-color:color-mix(in srgb,var(--done) 45%,var(--border))}
+.btn.warn{color:var(--needs);border-color:color-mix(in srgb,var(--needs) 45%,var(--border))}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+/* Banner */
+.banner{padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--surface-2);border-bottom:1px solid var(--border);font-size:12.5px;color:var(--fg-2)}
+.banner strong{color:var(--fg)}
+
+/* Shell */
+.shell{display:grid;grid-template-columns:220px minmax(0,1fr);align-items:start}
+.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr) + 3px);padding:18px 12px 18px max(12px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px;height:calc(100vh - var(--hdr) - 3px);overflow:auto}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--fg-2);text-decoration:none;font-weight:600}
+.nav a:hover{background:var(--surface-2);color:var(--fg)}
+.nav a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+.nav .count{margin-left:auto;font-size:11.5px;font-family:var(--mono);background:var(--surface-2);color:var(--fg-2);border-radius:999px;padding:1px 7px}
+.nav a[aria-current="page"] .count{background:var(--surface);color:var(--accent)}
+.nav .count.hot{background:var(--urgent-soft);color:var(--urgent)}
+.nav svg{width:16px;height:16px;flex:none}
+.side-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label);padding:0 10px 6px}
+.plat-list{display:flex;flex-direction:column;gap:2px}
+.plat-list button{display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:6px 10px;border-radius:8px;text-align:left;color:var(--fg-2);font-weight:500}
+.plat-list button:hover{background:var(--surface-2);color:var(--fg)}
+.plat-list button .count{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--fg-3)}
+.side-note{font-size:12px;color:var(--fg-3);padding:0 10px}
+
+main{min-width:0;padding-block:20px 48px;padding-left:20px;padding-right:max(16px,env(safe-area-inset-right,0px))}
+.view-head{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.view-head .eyebrow{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label);margin-bottom:2px}
+.view-head h1{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.view-head p{margin:4px 0 0;color:var(--fg-2);max-width:68ch}
+.view-head .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:2px;transition:border-color .15s}
+.metric:hover{border-color:var(--border-strong)}
+.metric.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.metric .k{font-size:12.5px;font-weight:600;color:var(--fg-2);display:flex;align-items:center;gap:7px}
+.metric .k i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.metric .v{font-size:30px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+.metric .s{font-size:12px;color:var(--fg-3)}
+
+/* Filters */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px;margin-bottom:12px}
+.search{flex:1 1 220px;position:relative;min-width:0}
+.search input{width:100%;padding:8px 10px 8px 32px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg)}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--fg-3)}
+.filters select{padding:8px 28px 8px 10px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg);font-size:13px;max-width:100%}
+.results-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--fg-3);margin:0 2px 8px}
+.results-line .chips{display:flex;gap:6px;flex-wrap:wrap}
+.fchip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border-strong);background:var(--surface);border-radius:999px;padding:1px 4px 1px 9px;font-size:12px;color:var(--fg-2)}
+.fchip button{border:0;background:transparent;padding:0 4px;color:var(--fg-3);font-size:14px;line-height:1}
+
+/* Split */
+.split{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:16px;align-items:start}
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.row{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:12px;padding:12px 14px;border:0;border-bottom:1px solid var(--border);background:transparent;text-align:left;width:100%}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--surface-2)}
+.row[aria-current="true"]{background:var(--accent-soft)}
+.row.done .r-content,.row.done .r-who{color:var(--fg-3)}
+.r-main{min-width:0;display:flex;flex-direction:column;gap:3px}
+.r-who{font-weight:700;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;min-width:0}
+.r-who small{font-weight:500;color:var(--fg-3);font-size:12px}
+.r-content{color:var(--fg-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.r-why{font-size:12px;color:var(--fg-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:12px;color:var(--fg-3);white-space:nowrap}
+.new-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:2px}
+.empty{padding:40px 20px;text-align:center;color:var(--fg-3)}
+.empty strong{display:block;color:var(--fg);font-size:15px;margin-bottom:4px}
+
+/* Chips & pills */
+.pbadge{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.02em}
+.pbadge.linkedin{background:var(--li-soft);color:var(--li)}
+.pbadge.facebook{background:var(--fb-soft);color:var(--fb)}
+.pbadge.instagram{background:var(--ig-soft);color:var(--ig)}
+.pbadge.sm{width:24px;height:24px;border-radius:6px;font-size:10px}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.urgent{background:var(--urgent-soft);color:var(--urgent)}
+.pill.needs{background:var(--needs-soft);color:var(--needs)}
+.pill.info{background:var(--info-soft);color:var(--info)}
+.pill.reviewed{background:var(--done-soft);color:var(--done)}
+.tag{display:inline-flex;border:1px solid var(--border);border-radius:6px;padding:1px 7px;font-size:11.5px;color:var(--fg-2);background:var(--surface-2);white-space:nowrap}
+.tag.flag{border-color:color-mix(in srgb,var(--urgent) 40%,var(--border));color:var(--urgent);background:var(--urgent-soft)}
+.st{font-size:11.5px;font-weight:600}
+.st.new{color:var(--accent)} .st.followup{color:var(--needs)} .st.reviewed{color:var(--done)}
+
+/* Detail */
+.detail{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr) + 19px);max-height:calc(100vh - var(--hdr) - 40px);overflow:auto;box-shadow:var(--shadow)}
+.d-sec{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
+.d-sec:last-child{border-bottom:0}
+.d-top{display:flex;align-items:center;gap:10px}
+.d-top .meta{min-width:0;flex:1}
+.d-top .meta b{display:block}
+.d-top .meta span{font-size:12.5px;color:var(--fg-3)}
+.d-close{display:none}
+.d-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label)}
+.d-sender{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.d-sender small{display:block;font-size:12.5px;font-weight:500;color:var(--fg-3)}
+.quote{background:var(--surface-2);border-radius:8px;padding:12px 14px;font-size:14.5px;line-height:1.55}
+.quote.blur{filter:blur(5px);user-select:none}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px}
+.kv dt{color:var(--fg-3)} .kv dd{margin:0;min-width:0}
+.why{border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.why p{margin:0;color:var(--fg)}
+.why .rule{font-size:12px;color:var(--fg-3)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+textarea{width:100%;min-height:150px;resize:vertical;border:1px solid var(--border-strong);border-radius:8px;padding:10px 12px;background:var(--bg);line-height:1.55}
+.helper{font-size:12px;color:var(--fg-3);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.notice{border-radius:8px;padding:10px 12px;font-size:13px}
+.notice.warn{background:var(--needs-soft);color:var(--needs)}
+.notice.ok{background:var(--done-soft);color:var(--done)}
+.notice.muted{background:var(--surface-2);color:var(--fg-2)}
+.notice.bad{background:var(--urgent-soft);color:var(--urgent)}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.log li{display:grid;grid-template-columns:72px 1fr;gap:8px;color:var(--fg-2)}
+.log time{color:var(--fg-3);font-family:var(--mono);font-size:11.5px}
+.d-empty{padding:40px 20px;text-align:center;color:var(--fg-3)}
+.scrim{display:none}
+
+/* Moderation */
+.mod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:14px}
+.mcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+.mcard.decided{opacity:.85}
+.mhead{display:flex;gap:10px;align-items:center}
+.mhead .meta{flex:1;min-width:0}
+.mhead .meta b{display:block}
+.mhead .meta span{font-size:12px;color:var(--fg-3)}
+.reveal{font-size:12px;border:0;background:transparent;color:var(--accent);font-weight:600;padding:0;align-self:flex-start}
+.mod-policy{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px;font-size:13px}
+.mod-policy b{display:block;margin-bottom:2px}
+.mod-policy p{margin:0;color:var(--fg-2)}
+.subhead{font-size:15px;font-weight:800;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+
+/* Digest */
+.digest-wrap{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start}
+.email{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.email::before{content:"";display:block;height:3px;background:var(--rainbow)}
+.e-head{padding:16px 22px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px}
+.e-head dt{color:var(--fg-3)} .e-head dd{margin:0;min-width:0}
+.e-body{padding:20px 22px 24px;display:flex;flex-direction:column;gap:22px;max-width:720px}
+.e-body h2{font-size:21px;font-weight:800;letter-spacing:-.015em}
+.e-lede{margin:6px 0 0;color:var(--fg-2);font-size:15px;max-width:65ch}
+.e-sec h3{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label);margin-bottom:8px;display:flex;gap:8px;align-items:center}
+.e-sec ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.e-item{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px;border-radius:8px}
+.e-item:hover{background:var(--surface-2)}
+.e-item p{margin:0}
+.e-item .t{font-weight:700}
+.e-item .c{color:var(--fg-2);font-size:13px}
+.e-item .w{color:var(--fg-3);font-size:12px}
+.e-none{color:var(--fg-3);font-size:13px;padding:4px 8px}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:84px minmax(0,1fr) 28px;gap:10px;align-items:center;font-size:13px}
+.bar .track{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.bar .fill{height:100%;border-radius:99px}
+.bar .n{text-align:right;font-family:var(--mono);font-size:12px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;font-size:13px}
+.panel h3{font-size:14px;font-weight:800}
+.panel p{margin:0;color:var(--fg-2)}
+.sched{display:grid;grid-template-columns:auto 1fr;gap:4px 12px}
+.sched dt{color:var(--fg-3)} .sched dd{margin:0}
+.flash{animation:flash 1s ease}
+@keyframes flash{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:var(--shadow)}}
+
+/* About */
+.about{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.about .panel ul{margin:0;padding-left:18px;color:var(--fg-2);display:flex;flex-direction:column;gap:4px}
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:560px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg-3);background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+.yes{color:var(--done);font-weight:700} .sim{color:var(--needs);font-weight:700}
+
+/* Toast */
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:100;max-width:calc(100vw - 32px)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Responsive */
+@media (max-width:1179px){
+  .split{grid-template-columns:minmax(0,1fr)}
+  .detail{position:fixed;inset:auto 0 0 auto;top:0;width:min(480px,100%);max-height:none;height:100%;border-radius:0;z-index:80;transform:translateX(100%);transition:transform .22s ease;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px);visibility:hidden}
+  body.sheet .detail{transform:none;visibility:visible}
+  body.sheet .scrim{display:block;position:fixed;inset:0;background:var(--overlay);z-index:70}
+  .d-close{display:inline-flex}
+  .digest-wrap{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:899px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .side{position:static;height:auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));overflow:visible}
+  .side .side-block,.side-note{display:none}
+  .nav{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
+  .nav a{white-space:nowrap;padding:7px 10px}
+  main{padding-left:max(16px,env(safe-area-inset-left,0px))}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brand span{display:none}
+}
+@media (max-width:520px){
+  .row{grid-template-columns:28px minmax(0,1fr);}
+  .row .pbadge{width:28px;height:28px}
+  .r-side{grid-column:2;flex-direction:row;align-items:center;justify-content:space-between}
+  .filters select{flex:1 1 calc(50% - 4px)}
+  .clock{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand"><b>Volta</b><span>Social Media Command Centre</span></div>
+    <span class="proto" title="Fictional sample data. Nothing is connected, sent or posted.">Prototype · fictional data</span>
+    <div class="top-right">
+      <div class="clock" title="Simulated clock. It starts at 12:58 p.m. each time the page loads."><span class="dot" aria-hidden="true"></span><span id="clock" class="mono">Thu, Nov 5 · 12:58 p.m.</span><span>AST (simulated)</span></div>
+      <button class="btn sm" id="sim-new" data-act="simulate">+ Simulate new interaction</button>
+      <button class="btn sm ghost" id="reset" data-act="reset">Reset demo</button>
+    </div>
+  </div>
+</header>
+<div class="banner"><strong>Prototype only.</strong> All people, organizations and messages are fictional. Nothing is connected to LinkedIn, Facebook or Instagram, and nothing is ever sent, posted, hidden or deleted. Classification uses simple keyword rules, not AI.</div>
+
+<div class="shell">
+  <aside class="side" aria-label="Main navigation">
+    <nav class="nav" id="nav">
+      <a href="#inbox" data-view="inbox"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9.5h3.2l1 1.8h3.6l1-1.8H14"/><path d="M3.6 3h8.8L14 9.5V13H2V9.5z"/></svg>Unified inbox<span class="count" id="c-inbox">0</span></a>
+      <a href="#moderation" data-view="moderation"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 1.8l5.2 2v4c0 3-2.2 5.3-5.2 6.4C5 13.1 2.8 10.8 2.8 7.8v-4z"/><path d="M8 5v3.4M8 10.6v.1"/></svg>Moderation<span class="count" id="c-mod">0</span></a>
+      <a href="#digest" data-view="digest"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.4 1.5"/></svg>1:00 p.m. digest<span class="count" id="c-digest" hidden>new</span></a>
+      <a href="#about" data-view="about"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7.2V11M8 5v.1"/></svg>About this prototype</a>
+    </nav>
+    <div class="side-block">
+      <div class="side-label">Accounts</div>
+      <div class="plat-list" id="plat-list"></div>
+    </div>
+    <p class="side-note">Signed in as Amy (communications and operations). Sample session, no real login.</p>
+  </aside>
+
+  <main>
+    <!-- INBOX -->
+    <section id="view-inbox" aria-labelledby="h-inbox">
+      <div class="view-head">
+        <div>
+          <div class="eyebrow">Today · all platforms</div>
+          <h1 id="h-inbox">Unified inbox</h1>
+          <p>Messages, comments, mentions, tags and shares from all three accounts, sorted so the things that need you come first.</p>
+        </div>
+      </div>
+      <div class="metrics" id="metrics"></div>
+      <div class="filters" role="search">
+        <label class="search"><span class="sr">Search interactions</span>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="7" cy="7" r="4.8"/><path d="M10.6 10.6L14 14"/></svg>
+          <input id="f-q" type="search" placeholder="Search people, words, accounts…" autocomplete="off">
+        </label>
+        <label><span class="sr">Platform</span><select id="f-platform"><option value="">All platforms</option><option value="linkedin">LinkedIn</option><option value="facebook">Facebook</option><option value="instagram">Instagram</option></select></label>
+        <label><span class="sr">Priority</span><select id="f-priority"><option value="">Any priority</option><option value="urgent">Urgent</option><option value="needs">Needs response</option><option value="info">Informational</option></select></label>
+        <label><span class="sr">Interaction type</span><select id="f-type"><option value="">All types</option></select></label>
+        <label><span class="sr">Review status</span><select id="f-status"><option value="">Any status</option><option value="open">Open (new + follow-up)</option><option value="new">New</option><option value="followup">Follow-up</option><option value="reviewed">Reviewed</option></select></label>
+        <label><span class="sr">Sort</span><select id="f-sort"><option value="priority">Sort: priority</option><option value="newest">Sort: newest</option></select></label>
+      </div>
+      <div class="results-line" id="results-line"></div>
+      <div class="split">
+        <div class="list" id="list" aria-label="Interactions"></div>
+        <div class="scrim" data-act="close-detail"></div>
+        <aside class="detail" id="detail" aria-label="Selected interaction"></aside>
+      </div>
+    </section>
+
+    <!-- MODERATION -->
+    <section id="view-moderation" hidden aria-labelledby="h-mod">
+      <div class="view-head">
+        <div>
+          <div class="eyebrow">Human review required</div>
+          <h1 id="h-mod">Possible inappropriate comments</h1>
+          <p>The rules flag comments that may be abusive, spam, or that expose personal information. Nothing is hidden or removed automatically. You decide, then act in the platform yourself.</p>
+        </div>
+      </div>
+      <div class="mod-policy">
+        <div><b>Keep visible</b><p>Criticism that is rude but fair. Mark it reviewed and consider a calm public reply.</p></div>
+        <div><b>Hide or remove (manual)</b><p>Spam, slurs, threats or personal attacks. Open the post in the platform and hide it there.</p></div>
+        <div><b>Escalate</b><p>Threats, legal claims or anything you are unsure about. Send to your manager before acting.</p></div>
+      </div>
+      <div id="mod-pending"></div>
+      <div id="mod-done"></div>
+    </section>
+
+    <!-- DIGEST -->
+    <section id="view-digest" hidden aria-labelledby="h-digest">
+      <div class="view-head">
+        <div>
+          <div class="eyebrow">Daily summary · 1:00 p.m.</div>
+          <h1 id="h-digest">Digest preview</h1>
+          <p>A once-a-day summary of everything since yesterday at 1:00 p.m. It is built from the sample data and the decisions you make in this prototype.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" data-act="copy-digest">Copy as text</button>
+          <button class="btn primary" data-act="gen-digest">Generate digest</button>
+        </div>
+      </div>
+      <div class="digest-wrap">
+        <article class="email" id="digest"></article>
+        <aside class="panel">
+          <h3>Delivery (simulated)</h3>
+          <dl class="sched">
+            <dt>Time</dt><dd>Weekdays, 1:00 p.m. Atlantic</dd>
+            <dt>To</dt><dd>Amy, communications lead</dd>
+            <dt>Covers</dt><dd>Since 1:00 p.m. the previous day</dd>
+            <dt>Status</dt><dd><span class="sim">Not scheduled</span></dd>
+          </dl>
+          <p>This prototype does not send email or run on a schedule. The page shows a notice when its simulated clock passes 1:00 p.m. In a pilot, a scheduler would build and send this summary.</p>
+          <p id="gen-meta" class="mono" style="font-size:12px;color:var(--fg-3)"></p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="view-about" hidden aria-labelledby="h-about">
+      <div class="view-head">
+        <div>
+          <div class="eyebrow">Read me</div>
+          <h1 id="h-about">About this prototype</h1>
+          <p>What works, what is pretend, and the assumptions behind the sample data.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Feature</th><th>In this prototype</th><th>How</th></tr></thead>
+          <tbody>
+            <tr><td>Unified feed, filters, search, sorting</td><td class="yes">Works</td><td>Runs in your browser on 24 fictional interactions.</td></tr>
+            <tr><td>Mark reviewed, follow-up, reopen</td><td class="yes">Works</td><td>Saved in this browser only. "Reset demo" restores the sample data.</td></tr>
+            <tr><td>Priority classification and the "why"</td><td class="sim">Simulated</td><td>Keyword rules, shown openly on every item. Not AI. Some items will be misjudged, which is useful for testing.</td></tr>
+            <tr><td>Suggested replies</td><td class="sim">Simulated</td><td>Pre-written Volta-voice templates chosen by the matching rule. Editable. Facts you must check appear in [brackets] and block approval.</td></tr>
+            <tr><td>Approve reply</td><td class="sim">Simulated</td><td>Records your approval. Never posts. You copy it and post it yourself.</td></tr>
+            <tr><td>Moderation decisions</td><td class="sim">Simulated</td><td>Records your decision. Never hides, deletes or blocks anything.</td></tr>
+            <tr><td>1:00 p.m. digest</td><td class="yes">Summary works</td><td>"Generate digest" rebuilds it from current data. Delivery and scheduling are not real.</td></tr>
+            <tr><td>New activity arriving</td><td class="sim">Simulated</td><td>"Simulate new interaction" adds one of three extra sample items. No live sync.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="about">
+        <div class="panel">
+          <h3>Assumptions</h3>
+          <ul>
+            <li>One company account per platform: a LinkedIn page, a Facebook page and an Instagram business profile.</li>
+            <li>Amy is the only reviewer. A real tool might add a second approver.</li>
+            <li>Volta's time zone is Atlantic (AST). The digest window is 1:00 p.m. to 1:00 p.m.</li>
+            <li>Urgent means media requests, billing problems, stated deadlines and possible inappropriate content.</li>
+            <li>The voice is warm, short and plain, with Canadian spelling and a personal sign-off.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Safety rules built in</h3>
+          <ul>
+            <li>No credentials, no accounts connected, no network calls.</li>
+            <li>No reply can be approved while it still contains a [placeholder].</li>
+            <li>Offensive comments are blurred until you choose to read them.</li>
+            <li>Every action is written to the item's activity history.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+const KEY='volta-cc-v1';
+const BASE=new Date('2026-11-05T12:58:00-04:00').getTime();
+const LOADED=Date.now();
+const TZ='America/Halifax';
+const simNow=()=>BASE+(Date.now()-LOADED);
+const DIGEST_AT=new Date('2026-11-05T13:00:00-04:00').getTime();
+const WINDOW_START=new Date('2026-11-04T13:00:00-04:00').getTime();
+
+const PLAT={
+  linkedin:{name:'LinkedIn',short:'LI',account:'Volta · company page'},
+  facebook:{name:'Facebook',short:'FB',account:'Volta · Facebook page'},
+  instagram:{name:'Instagram',short:'IG',account:'@volta · business profile'}
+};
+const PRI={urgent:'Urgent',needs:'Needs response',info:'Informational'};
+const STATUS={new:'New',followup:'Follow-up',reviewed:'Reviewed'};
+
+/* ---------- Fictional sample data ---------- */
+const SEED=[
+ {id:'i01',platform:'linkedin',type:'Direct message',sender:'Priya Raman',meta:'Producer, Coastal Morning Radio (fictional)',mins:14,content:"Hi Volta team, I'm producing a segment on Atlantic Canadian startups for tomorrow's show. Is someone available for a 10-minute phone interview before 4 p.m. today? Sorry for the short notice."},
+ {id:'i02',platform:'facebook',type:'Direct message',sender:'Linda Okafor',mins:41,content:"Hi, I was charged twice for my coworking day pass on Monday. Can someone help me get a refund for the extra charge?"},
+ {id:'i03',platform:'instagram',type:'Comment',sender:'@jordy.builds',ctx:'On post: Winter cohort announcement',mins:52,content:"This place is a scam, they take your money and give you nothing. f*** this."},
+ {id:'i04',platform:'linkedin',type:'Direct message',sender:'Andrew Chen',meta:'Program Officer, Maritime Growth Fund (fictional)',mins:96,status:'followup',content:"Following up on last week's note. Could you send the Q3 program impact numbers by Friday? Our board meets Monday.",log:[{at:BASE-80*60000,a:'Marked for follow-up. Asked finance for Q3 numbers.'}]},
+ {id:'i05',platform:'instagram',type:'Direct message',sender:'@saltwatercoffee.co',meta:'Local café (fictional)',mins:120,content:"Hey! We'd love to sponsor coffee for your next founder event. Who's the best person to talk to about a partnership?"},
+ {id:'i06',platform:'facebook',type:'Comment',sender:'Marcus Bell',ctx:'On event: Founders Pitch Night, Nov 12',mins:135,content:"Is Pitch Night still happening on the 12th? The registration page says sold out but my friend got a ticket yesterday."},
+ {id:'i07',platform:'linkedin',type:'Comment',sender:'Sam Whitaker',ctx:"On post: We're hiring a Program Coordinator",mins:160,content:"Is the Program Coordinator role open to remote applicants, or is it in-person only?"},
+ {id:'i08',platform:'instagram',type:'Tag',sender:'@techwomen.atlantic',meta:'Community group (fictional)',ctx:'Tagged Volta in a photo',mins:190,content:"Packed room at Volta for this morning's breakfast workshop. Thank you for hosting us!"},
+ {id:'i09',platform:'facebook',type:'Comment',sender:'Grow Fast Media',ctx:'On post: Pitch Night tickets',mins:205,content:"Want 10K followers FAST?? Click here for free followers 👉 bit.ly/grw-fst"},
+ {id:'i10',platform:'instagram',type:'Comment',sender:'@maria.k.design',ctx:'On post: Winter cohort announcement',mins:240,content:"When do applications for the winter cohort close? I'm finishing my prototype this month."},
+ {id:'i11',platform:'linkedin',type:'Mention',sender:'Elena Fournier',meta:'CEO, Tidewater Analytics (fictional)',mins:275,content:"Huge thanks to Volta for the mentorship this fall. We just closed our pre-seed round and couldn't have done it without this community."},
+ {id:'i12',platform:'facebook',type:'Comment',sender:'Tom Hadley',ctx:'On event: Climate Tech Panel',mins:320,content:"Parking was terrible last night. I circled for 20 minutes and missed the start of the panel."},
+ {id:'i13',platform:'instagram',type:'Comment',sender:'@kev_in_hfx',ctx:'On reel: Meet the winter cohort',mins:355,content:"You people are idiots and so is everyone who works there."},
+ {id:'i14',platform:'linkedin',type:'Comment',sender:'Rachel Kim',ctx:'On event: Climate Tech Panel',mins:410,content:"Will the panel recording be posted anywhere? I missed the live session."},
+ {id:'i15',platform:'facebook',type:'Comment',sender:'Dana Lee',ctx:'On event: Founders Pitch Night, Nov 12',mins:470,content:"Can someone call me about volunteering at the event? My cell is 902-555-0148."},
+ {id:'i16',platform:'instagram',type:'Direct message',sender:'@founder.ola',meta:'Student founder',mins:530,content:"Hi! I'm a student founder working on a campus food app. Do you offer free office hours for students?"},
+ {id:'i17',platform:'linkedin',type:'Direct message',sender:'Mei Tanaka',mins:610,content:"Hello, I'd like to attend Pitch Night. Is there a step-free entrance? I use a wheelchair."},
+ {id:'i18',platform:'linkedin',type:'Mention',sender:'Atlantic Tech Weekly',meta:'Newsletter (fictional)',mins:690,content:"This week's roundup: Volta named one of the region's most active startup communities."},
+ {id:'i19',platform:'instagram',type:'Story mention',sender:'@nova.robotics',meta:'Startup (fictional)',mins:760,content:"Shared a story from the demo day stage and mentioned @volta."},
+ {id:'i20',platform:'facebook',type:'Recommendation',sender:'Jess Morin',mins:840,status:'reviewed',content:"Recommends Volta. Great community and genuinely helpful staff. The coworking space is always welcoming."},
+ {id:'i21',platform:'linkedin',type:'Share',sender:'Dev Patel',ctx:'Reshared: Winter cohort applications are open',mins:905,status:'reviewed',content:"Founders in Atlantic Canada, this is worth a look. Applications are open now."},
+ {id:'i22',platform:'instagram',type:'Comment',sender:'@lukas.ventures',ctx:'On post: Fundraising 101 workshop recap',mins:980,content:"Could you share the slide deck from the fundraising workshop?"},
+ {id:'i23',platform:'linkedin',type:'Comment',sender:'Karen Doyle',ctx:'On post: Meet the winter cohort',mins:1080,status:'reviewed',content:"Congratulations to all the founders in this cohort!"},
+ {id:'i24',platform:'facebook',type:'Share',sender:'Atlantic Startup Meetup',meta:'Community group (fictional)',ctx:'Shared: Founders Pitch Night event',mins:1260,status:'reviewed',content:"A few of us will be at this one. Meet at the front door at 6:30."}
+];
+const EXTRA=[
+ {id:'x01',platform:'linkedin',type:'Direct message',sender:'Hannah Brooks',meta:'Reporter, The Harbour Ledger (fictional)',content:"I'm writing about the new cohort for Friday's paper. Could I get a quote from your executive director?"},
+ {id:'x02',platform:'facebook',type:'Comment',sender:'Owen Clarke',ctx:'On event: Founders Pitch Night, Nov 12',content:"Can I transfer my ticket to a coworker if I can't make it to the event?"},
+ {id:'x03',platform:'instagram',type:'Mention',sender:'@eastcoast.vc',meta:'Investor (fictional)',content:"Proud to back two founders from the Volta cohort this week."}
+];
+
+/* ---------- Rule-based classifier (simulated, not AI) ---------- */
+const MOD=[
+ {key:'abuse',label:'Abusive or insulting language',test:/\bf\*{2,}|\bidiots?\b|\bscam\b|\bstupid\b|\bmorons?\b/i},
+ {key:'spam',label:'Spam or suspicious link',test:/free followers|bit\.ly|click here|giveaway/i},
+ {key:'pii',label:'Personal information posted publicly',test:/\b\d{3}[-. ]\d{3}[-. ]\d{4}\b/}
+];
+const q=m=>'“'+m+'”';
+const RULES=[
+ {key:'media',p:'urgent',intent:'media',test:/\b(interview|segment|reporter|journalist|quote from|paper)\b/i,why:m=>`Media request: mentions ${q(m)}. Reporters usually work to same-day deadlines.`},
+ {key:'billing',p:'urgent',intent:'billing',test:/refund|charged twice|double charge|billing|overcharg/i,why:m=>`Billing problem: mentions ${q(m)}. Money issues erode trust quickly.`},
+ {key:'deadline',p:'urgent',intent:'deadline',test:/by (monday|tuesday|wednesday|thursday|friday)|deadline|end of day|asap|\btoday\b/i,why:m=>`Time-sensitive: mentions ${q(m)}. Missing it has a cost.`},
+ {key:'access',p:'needs',intent:'access',test:/wheelchair|accessib|step-free|ramp|hearing loop/i,why:m=>`Accessibility question: mentions ${q(m)}. Answer before the event so they can plan.`},
+ {key:'partner',p:'needs',intent:'partner',test:/sponsor|partnership|partner with|collaborat/i,why:m=>`Partnership opportunity: mentions ${q(m)}. Worth a same-day reply.`},
+ {key:'complaint',p:'needs',intent:'complaint',test:/terrible|disappoint|frustrat|missed the start|rude|unacceptable/i,why:m=>`Negative experience shared publicly: mentions ${q(m)}. Others can see how we respond.`},
+ {key:'job',p:'needs',intent:'job',needsQ:true,test:/\brole\b|position|hiring|\bjob\b/i,why:m=>`Question about a job posting (${q(m)}). Candidates are waiting on an answer.`},
+ {key:'application',p:'needs',intent:'application',needsQ:true,test:/\bapplica\w*|\bapply\b/i,why:m=>`Question about applications (${q(m)}). Directly affects someone applying.`},
+ {key:'event',p:'needs',intent:'event',needsQ:true,test:/pitch night|ticket|registration|recording|panel|workshop|slide deck|event/i,why:m=>`Question about an event (${q(m)}). Usually a quick answer that others also want.`},
+ {key:'question',p:'needs',intent:'question',test:/\?/,why:()=>'Contains a direct question to Volta.'},
+ {key:'dm',p:'needs',intent:'question',types:['Direct message'],why:()=>'Private message. People expect a reply to DMs.'},
+ {key:'positive',p:'info',intent:'thanks',test:/\b(thank|congrat|recommend)\w*|amazing|\bgreat\b|\blove\b|\bnamed\b|\bproud\b|closed our/i,why:m=>`Positive mention (${q(m)}). No reply needed. Consider liking or resharing.`},
+ {key:'share',p:'info',intent:'thanks',types:['Share','Tag','Story mention','Mention'],why:(m,it)=>`${it.type}. Good visibility, no action needed.`}
+];
+function classify(it){
+  const text=it.content;
+  const flags=[];
+  MOD.forEach(r=>{const m=text.match(r.test); if(m) flags.push({key:r.key,label:r.label,match:m[0]});});
+  if(flags.length){
+    return {priority:'urgent',rule:'moderation',match:flags.map(f=>f.match).join(', '),
+      reason:`Possible inappropriate content: ${flags.map(f=>f.label.toLowerCase()).join(' and ')}. A person must review it. Nothing has been hidden or removed.`,
+      intent:flags.some(f=>f.key==='pii')?'pii':'none',flags};
+  }
+  for(const r of RULES){
+    if(r.types && !r.types.includes(it.type)) continue;
+    if(r.needsQ && !text.includes('?')) continue;
+    let m=null;
+    if(r.test){ m=text.match(r.test); if(!m) continue; }
+    const hit=m?m[0]:it.type;
+    return {priority:r.p,rule:r.key,match:hit,reason:r.why(hit,it),intent:r.intent,flags};
+  }
+  return {priority:'info',rule:'default',match:'',reason:'No action signals found. Logged for awareness.',intent:'thanks',flags};
+}
+
+/* ---------- Volta-voice reply templates ---------- */
+const SIGN='\n\nAmy at Volta';
+const T={
+ media:[f=>`Hi ${f}, thank you for thinking of Volta for this. We'd be glad to help. I'm confirming a spokesperson now and will get back to you within the hour with a name and a time that works for your deadline. What's the best number to reach you?\n\nAmy\nCommunications, Volta`,
+        f=>`Hi ${f}, thanks for reaching out. We can likely help. I'll confirm a spokesperson and a time within the hour. What's the best number to reach you?`+SIGN],
+ billing:[f=>`Hi ${f}, I'm sorry about the double charge, and thank you for letting us know. I've shared this with our operations team so they can look into the refund. Could you reply with the email address you used to book? We'll follow up by [confirm timeframe].`+SIGN,
+          f=>`Hi ${f}, sorry about that. We're looking into the duplicate charge now. Please send the email you booked with and we'll follow up by [confirm timeframe].`+SIGN],
+ deadline:[f=>`Hi ${f}, thanks for following up. I've flagged this with the right person on our team, and we're on track to send it by [confirm date]. I'll let you know as soon as it's on the way.\n\nBest,\nAmy`,
+           f=>`Hi ${f}, thanks for the reminder. We'll have this to you by [confirm date].`+SIGN],
+ partner:[f=>`Hi ${f}, thank you, this sounds wonderful! I'd love to connect you with the person who coordinates our event partners. Could you share an email address and a little about what you have in mind? We'll be in touch soon.`+SIGN,
+          f=>`Hi ${f}, love this, thank you! Send us your email and a few details and I'll connect you with our events team.`+SIGN],
+ complaint:[f=>`Hi ${f}, thank you for telling us, and I'm sorry this got in the way of your evening. That's not the experience we want for anyone who joins us. I've shared your feedback with our events team. If you send us a message, we'd like to help you catch up on what you missed.`,
+            f=>`Hi ${f}, sorry about this, and thanks for flagging it. We've passed it to our events team. Send us a message and we'll make it right.`],
+ access:[f=>`Hi ${f}, thank you for asking, and we'd love to have you there. [Confirm accessible entrance details with operations.] If there's anything else that would make the evening easier, just let us know and we'll plan for it.`+SIGN,
+         f=>`Hi ${f}, thanks for checking. [Confirm accessible entrance details.] Let us know if you need anything else for the evening.`+SIGN],
+ job:[f=>`Hi ${f}, thanks for your interest in the role! [Confirm remote eligibility with the hiring manager.] The full posting has details on how to apply, and you're welcome to message us with any other questions.`,
+      f=>`Hi ${f}, great question. [Confirm remote eligibility.] Feel free to message us anytime.`],
+ application:[f=>`Hi ${f}, great question! Applications for the winter cohort close on [confirm date]. You'll find all the details and the form at [add link]. We'd love to see your application.`,
+              f=>`Hi ${f}, applications close [confirm date]. Details at [add link]. Good luck!`],
+ event:[f=>`Hi ${f}, thanks for asking! [Add the answer from the events team.] We'll post an update here too, so anyone with the same question can see it.`,
+        f=>`Hi ${f}, thanks for checking. [Add answer.] Hope to see you there!`],
+ question:[f=>`Hi ${f}, thanks for reaching out! [Add answer.] If it's easier to talk it through, reply here and we'll find a time that works.`+SIGN,
+           f=>`Hi ${f}, thanks for your message. [Add answer.]`+SIGN],
+ thanks:[f=>`Thank you, ${f}! We really appreciate you sharing this. It means a lot to the whole Volta team.`,
+         f=>`Thanks so much, ${f}!`],
+ pii:[f=>`Hi ${f}, thanks so much for offering to volunteer! For your privacy, you may want to delete the comment with your phone number. We'll send you a private message to sort out the details.`,
+      f=>`Hi ${f}, thank you! We'll message you privately. You may want to remove your number from this comment for privacy.`]
+};
+function firstName(it){ return it.sender.startsWith('@')||it.meta&&/group|newsletter|café|startup|investor/i.test(it.meta)||/media/i.test(it.sender)?'there':it.sender.split(' ')[0]; }
+function draft(it,variant){ const set=T[it.intent]||T.question; return set[variant%set.length](firstName(it)); }
+const hasPlaceholder=s=>/\[[^\]]+\]/.test(s||'');
+
+/* ---------- State ---------- */
+function prep(raw,minsOverride){
+  const mins=minsOverride!=null?minsOverride:raw.mins;
+  const ts=(minsOverride!=null?simNow():BASE)-mins*60000;
+  const c=classify(raw);
+  return Object.assign({},raw,c,{ts,status:raw.status||'new',reply:null,replyState:'none',variant:0,
+    mod:c.flags.length?'pending':null,
+    log:[{at:ts,a:'Received (sample data)'}].concat(raw.log||[]).concat(raw.status==='reviewed'?[{at:ts+30*60000,a:'Marked reviewed'}]:[])});
+}
+function fresh(){ return {v:1,items:SEED.map(r=>prep(r)),extraUsed:0,digestCount:0,seenDigest:false}; }
+let S;
+try{ const raw=localStorage.getItem(KEY); const p=raw&&JSON.parse(raw); S=(p&&p.v===1&&Array.isArray(p.items))?p:fresh(); }catch(e){ S=fresh(); }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+
+const F={q:'',platform:'',priority:'',type:'',status:'',sort:'priority'};
+let selected=null, view='inbox', digestHTML='', digestText='', revealed=new Set(), lastGenAt=null;
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const byId=id=>S.items.find(i=>i.id===id);
+const isOpen=i=>i.status!=='reviewed';
+const bucket=i=>i.status==='reviewed'?'reviewed':i.priority;
+const bucketLabel=i=>i.status==='reviewed'?'Reviewed':PRI[i.priority];
+function fmtTime(ts){ return new Date(ts).toLocaleTimeString('en-CA',{timeZone:TZ,hour:'numeric',minute:'2-digit'}).replace('a.m.','a.m.').replace(/\s?AM/i,' a.m.').replace(/\s?PM/i,' p.m.'); }
+function fmtFull(ts){ return new Date(ts).toLocaleDateString('en-CA',{timeZone:TZ,weekday:'short',month:'short',day:'numeric'})+' · '+fmtTime(ts); }
+function rel(ts){ const m=Math.round((simNow()-ts)/60000); if(m<1) return 'just now'; if(m<60) return m+' min ago'; const h=Math.floor(m/60); if(h<24) return h+' h ago'; return 'yesterday'; }
+function pbadge(p,sm){ return `<span class="pbadge ${p}${sm?' sm':''}" title="${PLAT[p].name}" aria-label="${PLAT[p].name}">${PLAT[p].short}</span>`; }
+function pill(i){ return `<span class="pill ${bucket(i)}">${bucketLabel(i)}</span>`; }
+function log(i,a){ i.log.push({at:simNow(),a}); }
+let toastT;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+async function copyText(text,label){
+  try{ await navigator.clipboard.writeText(text); toast(label||'Copied to clipboard'); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(_){} ta.remove(); toast(ok?(label||'Copied to clipboard'):'Copy was blocked. Select the text and copy it manually.'); }
+}
+
+/* ---------- Filtering ---------- */
+function filtered(){
+  const qq=F.q.trim().toLowerCase();
+  let list=S.items.filter(i=>{
+    if(F.platform && i.platform!==F.platform) return false;
+    if(F.priority && i.priority!==F.priority) return false;
+    if(F.type && i.type!==F.type) return false;
+    if(F.status==='open' && !isOpen(i)) return false;
+    if(F.status && F.status!=='open' && i.status!==F.status) return false;
+    if(qq){ const hay=[i.sender,i.meta,i.content,i.ctx,i.type,PLAT[i.platform].name,PLAT[i.platform].account,i.reason].join(' ').toLowerCase(); if(!hay.includes(qq)) return false; }
+    return true;
+  });
+  const rank={urgent:0,needs:1,info:2};
+  list.sort((a,b)=>{
+    if(F.sort==='newest') return b.ts-a.ts;
+    const ra=a.status==='reviewed'?3:rank[a.priority], rb=b.status==='reviewed'?3:rank[b.priority];
+    return ra-rb || b.ts-a.ts;
+  });
+  return list;
+}
+
+/* ---------- Render: metrics, list, detail ---------- */
+function renderMetrics(){
+  const it=S.items;
+  const urg=it.filter(i=>i.priority==='urgent'&&isOpen(i));
+  const nr=it.filter(i=>i.priority==='needs'&&isOpen(i));
+  const rv=it.filter(i=>i.status==='reviewed');
+  const modP=it.filter(i=>i.mod==='pending').length;
+  const fu=it.filter(i=>i.status==='followup').length;
+  const act=(k)=>{ if(k==='urgent') return F.priority==='urgent'&&F.status==='open'; if(k==='needs') return F.priority==='needs'&&F.status==='open'; if(k==='reviewed') return F.status==='reviewed'&&!F.priority; return !F.priority&&!F.status&&!F.platform&&!F.type&&!F.q; };
+  const tile=(k,label,color,v,sub)=>`<button class="metric${act(k)?' active':''}" data-act="metric" data-k="${k}" aria-pressed="${act(k)}"><span class="k"><i style="background:${color}"></i>${label}</span><span class="v">${v}</span><span class="s">${sub}</span></button>`;
+  $('#metrics').innerHTML=
+    tile('total','Total interactions','var(--fg-3)',it.length,`${it.filter(i=>i.status==='new').length} unread · since yesterday 1 p.m.`)+
+    tile('urgent','Urgent','var(--urgent)',urg.length,`${modP} in moderation queue`)+
+    tile('needs','Needs response','var(--needs)',nr.length,`${fu} marked for follow-up overall`)+
+    tile('reviewed','Reviewed','var(--done)',rv.length,`${Math.round(rv.length/Math.max(1,it.length)*100)}% of today's activity`);
+}
+function renderTypeOptions(){
+  const sel=$('#f-type'); const cur=sel.value;
+  const types=[...new Set(S.items.map(i=>i.type))].sort();
+  sel.innerHTML='<option value="">All types</option>'+types.map(t=>`<option${t===cur?' selected':''}>${esc(t)}</option>`).join('');
+}
+function renderResultsLine(n){
+  const chips=[];
+  const lab={platform:v=>PLAT[v].name,priority:v=>PRI[v],type:v=>v,status:v=>v==='open'?'Open':STATUS[v],q:v=>`“${v}”`};
+  ['q','platform','priority','type','status'].forEach(k=>{ if(F[k]) chips.push(`<span class="fchip">${esc(lab[k](F[k]))}<button data-act="clear-f" data-k="${k}" aria-label="Remove filter">×</button></span>`); });
+  $('#results-line').innerHTML=`<span>Showing <b class="mono">${n}</b> of <span class="mono">${S.items.length}</span></span>${chips.length?`<span class="chips">${chips.join('')}</span><button class="btn sm ghost" data-act="clear-all">Clear all</button>`:''}`;
+}
+function renderList(){
+  const list=filtered();
+  renderResultsLine(list.length);
+  if(!list.length){ $('#list').innerHTML=`<div class="empty"><strong>Nothing matches these filters</strong>Try removing a filter or clearing the search.<div style="margin-top:12px"><button class="btn sm" data-act="clear-all">Clear filters</button></div></div>`; return; }
+  $('#list').innerHTML=list.map(i=>`
+    <button class="row${i.status==='reviewed'?' done':''}" data-act="select" data-id="${i.id}" aria-current="${i.id===selected}">
+      ${pbadge(i.platform)}
+      <span class="r-main">
+        <span class="r-who">${i.status==='new'?'<span class="new-dot" title="New" aria-label="New"></span>':''}${esc(i.sender)}<small>${esc(i.type)}${i.ctx?' · '+esc(i.ctx):''}</small></span>
+        <span class="r-content">${i.flags.length&&!revealed.has(i.id)?'<em>Content hidden until reviewed in Moderation.</em>':esc(i.content)}</span>
+        <span class="r-why">${esc(i.reason)}</span>
+      </span>
+      <span class="r-side"><span>${rel(i.ts)}</span>${pill(i)}<span class="st ${i.status}">${STATUS[i.status]}</span></span>
+    </button>`).join('');
+}
+function replySection(i){
+  if(i.flags.length && i.mod==='pending'){
+    return `<div class="notice bad">Reply paused. This comment is in the moderation queue and needs a decision first.</div><div class="btn-row"><button class="btn sm" data-act="goto" data-view="moderation">Open moderation queue</button></div>`;
+  }
+  if(i.flags.length && i.intent==='none'){
+    return `<div class="notice muted">No reply recommended. Replying to spam or abusive comments tends to draw more attention to them.</div>`;
+  }
+  if(i.priority==='info' && i.replyState==='none'){
+    return `<div class="notice muted">No reply needed. A like or reshare is usually enough.</div><div class="btn-row"><button class="btn sm" data-act="write-anyway" data-id="${i.id}">Draft a thank-you anyway</button></div>`;
+  }
+  if(i.reply==null){ i.reply=draft(i,i.variant); i.replyState='draft'; }
+  const approved=i.replyState==='approved';
+  const ph=hasPlaceholder(i.reply);
+  return `
+    <div class="btn-row" role="group" aria-label="Draft style">
+      <button class="btn sm${i.variant===0?' on':''}" data-act="tone" data-v="0" data-id="${i.id}" ${approved?'disabled':''}>Friendly</button>
+      <button class="btn sm${i.variant===1?' on':''}" data-act="tone" data-v="1" data-id="${i.id}" ${approved?'disabled':''}>Brief</button>
+      <span style="font-size:12px;color:var(--fg-3);align-self:center">Template based on rule “${esc(i.rule)}”</span>
+    </div>
+    <label for="reply-${i.id}" class="sr">Reply text</label>
+    <textarea id="reply-${i.id}" data-reply="${i.id}" ${approved?'readonly':''}>${esc(i.reply)}</textarea>
+    <div class="helper"><span id="reply-state">${i.replyState==='edited'?'Edited by you':approved?'Approved':'Suggested draft'}</span><span id="reply-count" class="mono">${i.reply.length} chars</span></div>
+    <div id="ph-warn">${ph&&!approved?`<div class="notice warn">Fill in or delete the [bracketed] parts before approving. They mark facts the draft can't know.</div>`:''}</div>
+    ${approved?`<div class="notice ok">Approved by Amy at ${fmtTime(i.approvedAt)}. <b>Not posted.</b> Copy it and post it yourself in ${PLAT[i.platform].name}.</div>`:''}
+    <div class="btn-row">
+      ${approved?`<button class="btn sm primary" data-act="copy-reply" data-id="${i.id}">Copy reply</button><button class="btn sm" data-act="unapprove" data-id="${i.id}">Edit again</button>`
+      :`<button class="btn sm primary" id="approve-btn" data-act="approve" data-id="${i.id}" ${ph?'disabled':''}>Approve reply</button><button class="btn sm" data-act="copy-reply" data-id="${i.id}">Copy</button><button class="btn sm ghost" data-act="regen" data-id="${i.id}">Restore suggestion</button>`}
+    </div>`;
+}
+function renderDetail(){
+  const el=$('#detail');
+  const i=selected&&byId(selected);
+  if(!i){ el.innerHTML=`<div class="d-empty"><strong style="display:block;color:var(--fg);margin-bottom:4px">Select an interaction</strong>Pick any item on the left to see why it was classified, change its status and draft a reply.</div>`; return; }
+  const hidden=i.flags.length&&!revealed.has(i.id);
+  el.innerHTML=`
+    <div class="d-sec">
+      <div class="d-top">${pbadge(i.platform)}<div class="meta"><b>${PLAT[i.platform].name} · ${esc(i.type)}</b><span>${esc(PLAT[i.platform].account)}</span></div><button class="btn sm ghost d-close" data-act="close-detail" aria-label="Close">Close</button></div>
+      <div class="d-sender">${esc(i.sender)}${i.meta?`<small>${esc(i.meta)}</small>`:''}</div>
+      ${i.ctx?`<div style="font-size:12.5px;color:var(--fg-3)">${esc(i.ctx)}</div>`:''}
+      <div class="quote${hidden?' blur':''}" ${hidden?'aria-hidden="true"':''}>${esc(i.content)}</div>
+      ${hidden?`<button class="reveal" data-act="reveal" data-id="${i.id}">Show flagged content</button>`:''}
+      <dl class="kv"><dt>Received</dt><dd>${fmtFull(i.ts)} <span style="color:var(--fg-3)">(${rel(i.ts)})</span></dd><dt>Status</dt><dd><span class="st ${i.status}">${STATUS[i.status]}</span></dd></dl>
+    </div>
+    <div class="d-sec">
+      <div class="d-label">Classification</div>
+      <div class="why">
+        <div>${pill(i)} ${i.status==='reviewed'?`<span class="pill ${i.priority}" style="margin-left:4px">Was: ${PRI[i.priority]}</span>`:''}</div>
+        <p>${esc(i.reason)}</p>
+        ${i.flags.length?`<div class="btn-row">${i.flags.map(f=>`<span class="tag flag">${esc(f.label)}</span>`).join('')}</div>`:''}
+        <span class="rule">Rule matched: <span class="mono">${esc(i.rule)}</span>${i.match?` on <span class="mono">${esc(hidden?'(hidden)':i.match)}</span>`:''} · simulated keyword rules, not AI</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn sm ok" data-act="status" data-s="reviewed" data-id="${i.id}" ${i.status==='reviewed'?'disabled':''}>Mark reviewed</button>
+        <button class="btn sm warn" data-act="status" data-s="followup" data-id="${i.id}" ${i.status==='followup'?'disabled':''}>Needs follow-up</button>
+        <button class="btn sm" data-act="status" data-s="new" data-id="${i.id}" ${i.status==='new'?'disabled':''}>Reopen</button>
+      </div>
+    </div>
+    <div class="d-sec">
+      <div class="d-label">Suggested reply</div>
+      ${replySection(i)}
+    </div>
+    <div class="d-sec">
+      <div class="d-label">Activity</div>
+      <ul class="log">${i.log.slice().reverse().map(l=>`<li><time>${fmtTime(l.at)}</time><span>${esc(l.a)}</span></li>`).join('')}</ul>
+    </div>`;
+}
+
+/* ---------- Moderation ---------- */
+const DEC={kept:'Kept visible',hide:'Hide manually in platform',escalated:'Escalated to manager'};
+function renderModeration(){
+  const flagged=S.items.filter(i=>i.flags.length).sort((a,b)=>b.ts-a.ts);
+  const pending=flagged.filter(i=>i.mod==='pending'), done=flagged.filter(i=>i.mod!=='pending');
+  const card=i=>{
+    const hidden=!revealed.has(i.id);
+    return `<article class="mcard${i.mod!=='pending'?' decided':''}">
+      <div class="mhead">${pbadge(i.platform)}<div class="meta"><b>${esc(i.sender)}</b><span>${PLAT[i.platform].name} · ${esc(i.type)}${i.ctx?' · '+esc(i.ctx):''} · ${rel(i.ts)}</span></div></div>
+      <div class="btn-row">${i.flags.map(f=>`<span class="tag flag">${esc(f.label)}</span>`).join('')}</div>
+      <div class="quote${hidden?' blur':''}" ${hidden?'aria-hidden="true"':''}>${esc(i.content)}</div>
+      <button class="reveal" data-act="reveal" data-id="${i.id}">${hidden?'Show content':'Hide content'}</button>
+      <p style="margin:0;color:var(--fg-2);font-size:13px">${esc(i.reason)}</p>
+      ${i.mod==='pending'?`<div class="btn-row">
+          <button class="btn sm ok" data-act="mod" data-d="kept" data-id="${i.id}">Keep visible</button>
+          <button class="btn sm danger" data-act="mod" data-d="hide" data-id="${i.id}">Hide manually</button>
+          <button class="btn sm warn" data-act="mod" data-d="escalated" data-id="${i.id}">Escalate</button>
+          <button class="btn sm ghost" data-act="open" data-id="${i.id}">Open in inbox</button>
+        </div>`
+      :`<div class="notice ${i.mod==='kept'?'ok':i.mod==='hide'?'bad':'warn'}"><b>${DEC[i.mod]}</b>${i.mod==='hide'?`. Next step for you: open this comment in ${PLAT[i.platform].name} and hide or delete it there. This prototype cannot do it.`:i.mod==='escalated'?'. Waiting on your manager. Marked for follow-up.':'. Marked reviewed.'}</div>
+        <div class="btn-row"><button class="btn sm" data-act="mod-undo" data-id="${i.id}">Undo decision</button><button class="btn sm ghost" data-act="open" data-id="${i.id}">Open in inbox</button></div>`}
+    </article>`;
+  };
+  $('#mod-pending').innerHTML=`<h2 class="subhead">Waiting for your decision <span class="pill urgent">${pending.length}</span></h2>`+(pending.length?`<div class="mod-grid">${pending.map(card).join('')}</div>`:`<div class="panel"><p>The queue is clear. New flagged comments will appear here.</p></div>`);
+  $('#mod-done').innerHTML=done.length?`<h2 class="subhead">Decided today <span class="pill reviewed">${done.length}</span></h2><div class="mod-grid">${done.map(card).join('')}</div>`:'';
+}
+
+/* ---------- Digest ---------- */
+function buildDigest(){
+  const now=simNow();
+  const inWin=S.items.filter(i=>i.ts>=WINDOW_START);
+  const cnt=p=>inWin.filter(i=>i.platform===p).length;
+  const urgent=inWin.filter(i=>i.priority==='urgent'&&isOpen(i)&&!(i.flags.length));
+  const needs=inWin.filter(i=>i.priority==='needs'&&isOpen(i));
+  const modQ=inWin.filter(i=>i.mod==='pending');
+  const good=inWin.filter(i=>i.rule==='positive');
+  const reviewed=inWin.filter(i=>i.status==='reviewed').length;
+  const fu=inWin.filter(i=>i.status==='followup');
+  const approvedR=inWin.filter(i=>i.replyState==='approved').length;
+  const short=s=>s.length>110?s.slice(0,107).trim()+'…':s;
+  const line=(i,note)=>`<li><button class="e-item" style="border:0;background:transparent;text-align:left;width:100%" data-act="open" data-id="${i.id}">${pbadge(i.platform,1)}<span style="min-width:0"><p class="t">${esc(i.sender)} <span style="font-weight:500;color:var(--fg-3)">· ${esc(i.type)}</span></p><p class="c">${i.flags.length?'Flagged content hidden. Open to review.':esc(short(i.content))}</p><p class="w">${esc(note||i.reason)}</p></span><span class="w">${rel(i.ts)}</span></button></li>`;
+  const sec=(title,pillHtml,items,fn,none)=>`<section class="e-sec"><h3>${title} ${pillHtml}</h3>${items.length?`<ul>${items.map(fn).join('')}</ul>`:`<p class="e-none">${none}</p>`}</section>`;
+  const max=Math.max(1,cnt('linkedin'),cnt('facebook'),cnt('instagram'));
+  const top=urgent[0];
+  const lede=`${inWin.length} interactions since yesterday at 1:00 p.m. across LinkedIn (${cnt('linkedin')}), Facebook (${cnt('facebook')}) and Instagram (${cnt('instagram')}). `+
+    (urgent.length?`${urgent.length} urgent ${urgent.length===1?'item needs':'items need'} you first${top?`, starting with ${top.sender}`:''}. `:'Nothing urgent is open. ')+
+    `${needs.length} ${needs.length===1?'needs':'need'} a reply and ${modQ.length} ${modQ.length===1?'comment is':'comments are'} waiting in moderation.`;
+  digestHTML=`
+    <dl class="e-head"><dt>From</dt><dd>Volta Command Centre (prototype)</dd><dt>To</dt><dd>Amy</dd><dt>Subject</dt><dd><b>Your 1:00 p.m. social digest · ${urgent.length} urgent, ${needs.length} to reply</b></dd><dt>Covers</dt><dd>${fmtFull(WINDOW_START)} to ${fmtFull(now)}</dd></dl>
+    <div class="e-body">
+      <div><h2>Good afternoon, Amy.</h2><p class="e-lede">${esc(lede)}</p></div>
+      ${sec('Do first','<span class="pill urgent">'+urgent.length+'</span>',urgent,i=>line(i),'No open urgent items. Nice work.')}
+      ${sec('Moderation queue','<span class="pill urgent">'+modQ.length+'</span>',modQ,i=>line(i,i.flags.map(f=>f.label).join(', ')),'No comments waiting for review.')}
+      ${sec('Reply when you can','<span class="pill needs">'+needs.length+'</span>',needs.slice(0,8),i=>line(i),'Every question has been handled.')}
+      ${needs.length>8?`<p class="e-none">Plus ${needs.length-8} more in the inbox.</p>`:''}
+      ${sec('Good news worth sharing','<span class="pill info">'+good.length+'</span>',good.slice(0,4),i=>line(i,'Consider resharing or thanking publicly.'),'No standout positive mentions yet today.')}
+      <section class="e-sec"><h3>By platform</h3><div class="bars">${['linkedin','facebook','instagram'].map(p=>`<div class="bar"><span>${PLAT[p].name}</span><span class="track"><span class="fill" style="display:block;width:${cnt(p)/max*100}%;background:var(--${p==='linkedin'?'li':p==='facebook'?'fb':'ig'})"></span></span><span class="n">${cnt(p)}</span></div>`).join('')}</div></section>
+      <section class="e-sec"><h3>Already handled</h3><p class="e-none" style="padding:0">${reviewed} reviewed · ${fu.length} marked for follow-up · ${approvedR} ${approvedR===1?'reply':'replies'} approved and waiting for you to post</p></section>
+      <p class="e-none" style="padding:0;font-size:12px">Built from fictional sample data by keyword rules. Nothing was sent.</p>
+    </div>`;
+  digestText=[`YOUR 1:00 P.M. SOCIAL DIGEST (prototype, fictional data)`,`Covers ${fmtFull(WINDOW_START)} to ${fmtFull(now)}`,``,lede,``,
+    `DO FIRST (${urgent.length})`,...urgent.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
+    `MODERATION QUEUE (${modQ.length})`,...modQ.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${i.flags.map(f=>f.label).join(', ')}`),``,
+    `REPLY WHEN YOU CAN (${needs.length})`,...needs.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
+    `GOOD NEWS (${good.length})`,...good.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
+    `Handled: ${reviewed} reviewed, ${fu.length} follow-up, ${approvedR} replies approved (not posted).`].join('\n');
+  lastGenAt=now;
+}
+function renderDigest(){ $('#digest').innerHTML=digestHTML; $('#gen-meta').textContent=`Generation #${S.digestCount||1} at ${fmtTime(lastGenAt)} (simulated clock)`; }
+
+/* ---------- Sidebar ---------- */
+function renderSide(){
+  $('#c-inbox').textContent=S.items.filter(isOpen).length;
+  const mp=S.items.filter(i=>i.mod==='pending').length;
+  const cm=$('#c-mod'); cm.textContent=mp; cm.classList.toggle('hot',mp>0);
+  $('#plat-list').innerHTML=['linkedin','facebook','instagram'].map(p=>`<button data-act="plat" data-p="${p}">${pbadge(p,1)}<span>${PLAT[p].name}</span><span class="count">${S.items.filter(i=>i.platform===p&&isOpen(i)).length} open</span></button>`).join('');
+  const sim=$('#sim-new'); sim.disabled=S.extraUsed>=EXTRA.length; sim.textContent=S.extraUsed>=EXTRA.length?'No more sample arrivals':'+ Simulate new interaction';
+}
+function renderAll(){ renderSide(); renderMetrics(); renderTypeOptions(); renderList(); renderDetail(); renderModeration(); }
+
+/* ---------- Views ---------- */
+const VIEWS=['inbox','moderation','digest','about'];
+function setView(v){
+  if(!VIEWS.includes(v)) v='inbox';
+  view=v;
+  VIEWS.forEach(x=>{ $('#view-'+x).hidden=x!==v; });
+  document.querySelectorAll('#nav a').forEach(a=>a.setAttribute('aria-current',a.dataset.view===v?'page':'false'));
+  if(v==='digest'){ S.seenDigest=true; $('#c-digest').hidden=true; renderDigest(); save(); }
+  if(v!=='inbox') document.body.classList.remove('sheet');
+  window.scrollTo(0,0);
+}
+function go(v){ if(location.hash!=='#'+v) location.hash=v; else setView(v); }
+window.addEventListener('hashchange',()=>setView(location.hash.slice(1)));
+const narrow=()=>window.matchMedia('(max-width:1179px)').matches;
+function select(id){ selected=id; renderList(); renderDetail(); if(narrow()) document.body.classList.add('sheet'); }
+function syncFilterInputs(){ $('#f-q').value=F.q; $('#f-platform').value=F.platform; $('#f-priority').value=F.priority; $('#f-type').value=F.type; $('#f-status').value=F.status; $('#f-sort').value=F.sort; }
+
+/* ---------- Events ---------- */
+let resetArmed=false, resetT;
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, id=b.dataset.id, i=id&&byId(id);
+  switch(act){
+    case 'select': select(id); break;
+    case 'close-detail': document.body.classList.remove('sheet'); break;
+    case 'metric': {
+      const k=b.dataset.k; Object.assign(F,{q:'',platform:'',type:'',priority:'',status:''});
+      if(k==='urgent') Object.assign(F,{priority:'urgent',status:'open'});
+      if(k==='needs') Object.assign(F,{priority:'needs',status:'open'});
+      if(k==='reviewed') F.status='reviewed';
+      syncFilterInputs(); renderMetrics(); renderList(); break; }
+    case 'plat': Object.assign(F,{platform:b.dataset.p,status:'open'}); syncFilterInputs(); go('inbox'); renderMetrics(); renderList(); break;
+    case 'clear-f': F[b.dataset.k]=''; syncFilterInputs(); renderMetrics(); renderList(); break;
+    case 'clear-all': Object.assign(F,{q:'',platform:'',priority:'',type:'',status:''}); syncFilterInputs(); renderMetrics(); renderList(); break;
+    case 'status': {
+      const s=b.dataset.s; i.status=s;
+      log(i,s==='reviewed'?'Marked reviewed':s==='followup'?'Marked for follow-up':'Reopened');
+      if(s==='new' && i.mod && i.mod!=='pending'){ i.mod='pending'; log(i,'Moderation decision cleared'); }
+      if(s==='reviewed' && i.mod==='pending'){ i.mod='kept'; log(i,'Moderation: Kept visible'); }
+      save(); renderAll(); toast(s==='reviewed'?'Marked reviewed':s==='followup'?'Marked for follow-up':'Reopened'); break; }
+    case 'tone': i.variant=+b.dataset.v; i.reply=draft(i,i.variant); i.replyState='draft'; save(); renderDetail(); break;
+    case 'regen': i.reply=draft(i,i.variant); i.replyState='draft'; save(); renderDetail(); toast('Suggested draft restored'); break;
+    case 'write-anyway': i.intent='thanks'; i.reply=draft(i,0); i.replyState='draft'; save(); renderDetail(); break;
+    case 'approve':
+      if(hasPlaceholder(i.reply)){ toast('Fill in the [bracketed] parts first'); break; }
+      i.replyState='approved'; i.approvedAt=simNow(); log(i,'Reply approved by Amy (not posted)'); save(); renderDetail(); renderList(); toast('Reply approved. Nothing was posted.'); break;
+    case 'unapprove': i.replyState='edited'; log(i,'Approval withdrawn for editing'); save(); renderDetail(); break;
+    case 'copy-reply': copyText(i.reply,'Reply copied. Paste it in '+PLAT[i.platform].name+' yourself.'); break;
+    case 'reveal': revealed.has(id)?revealed.delete(id):revealed.add(id); renderList(); renderDetail(); renderModeration(); break;
+    case 'mod': {
+      const d=b.dataset.d; i.mod=d; i.status=d==='kept'?'reviewed':'followup';
+      log(i,'Moderation: '+DEC[d]+(d==='hide'?' (action needed in '+PLAT[i.platform].name+')':''));
+      save(); renderAll(); toast(DEC[d]+'. Nothing was changed on '+PLAT[i.platform].name+'.'); break; }
+    case 'mod-undo': i.mod='pending'; i.status='new'; log(i,'Moderation decision undone'); save(); renderAll(); break;
+    case 'open': go('inbox'); Object.assign(F,{q:'',platform:'',priority:'',type:'',status:''}); syncFilterInputs(); renderMetrics(); select(id); setTimeout(()=>{ const r=document.querySelector(`.row[data-id="${id}"]`); r&&r.scrollIntoView({block:'center'}); },30); break;
+    case 'goto': go(b.dataset.view); break;
+    case 'gen-digest': S.digestCount=(S.digestCount||0)+1; buildDigest(); renderDigest(); save(); const d=$('#digest'); d.classList.remove('flash'); void d.offsetWidth; d.classList.add('flash'); toast('Digest regenerated from current data'); break;
+    case 'copy-digest': copyText(digestText,'Digest copied as plain text'); break;
+    case 'simulate': {
+      if(S.extraUsed>=EXTRA.length) break;
+      const it=prep(EXTRA[S.extraUsed],0); S.extraUsed++; S.items.unshift(it); save(); renderAll();
+      toast(`New sample ${it.type.toLowerCase()} on ${PLAT[it.platform].name}: classified ${PRI[it.priority]}`); break; }
+    case 'reset':
+      if(!resetArmed){ resetArmed=true; b.textContent='Click again to reset'; b.classList.add('danger'); clearTimeout(resetT); resetT=setTimeout(()=>{ resetArmed=false; b.textContent='Reset demo'; b.classList.remove('danger'); },3500); break; }
+      resetArmed=false; b.textContent='Reset demo'; b.classList.remove('danger');
+      S=fresh(); selected=null; revealed.clear(); save(); buildDigest(); renderAll(); renderDigest(); $('#c-digest').hidden=true; toast('Demo reset to the original sample data'); break;
+  }
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset && t.dataset.reply){
+    const i=byId(t.dataset.reply); i.reply=t.value; i.replyState='edited';
+    const ph=hasPlaceholder(t.value);
+    $('#reply-count').textContent=t.value.length+' chars'; $('#reply-state').textContent='Edited by you';
+    const ab=$('#approve-btn'); if(ab) ab.disabled=ph||!t.value.trim();
+    $('#ph-warn').innerHTML=ph?`<div class="notice warn">Fill in or delete the [bracketed] parts before approving. They mark facts the draft can't know.</div>`:'';
+    clearTimeout(t._s); t._s=setTimeout(save,300); return;
+  }
+  if(t.id==='f-q'){ F.q=t.value; renderMetrics(); renderList(); }
+});
+document.addEventListener('change',e=>{
+  const m={'f-platform':'platform','f-priority':'priority','f-type':'type','f-status':'status','f-sort':'sort'}[e.target.id];
+  if(m){ F[m]=e.target.value; renderMetrics(); renderList(); }
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.body.classList.remove('sheet'); });
+
+/* ---------- Simulated clock ---------- */
+let digestNotified=false;
+function tick(){
+  const n=simNow();
+  $('#clock').textContent=new Date(n).toLocaleDateString('en-CA',{timeZone:TZ,weekday:'short',month:'short',day:'numeric'})+' · '+fmtTime(n);
+  if(!digestNotified && n>=DIGEST_AT){
+    digestNotified=true; S.digestCount=(S.digestCount||0)+1; buildDigest(); if(view==='digest') renderDigest(); else $('#c-digest').hidden=false;
+    toast('1:00 p.m. digest is ready (simulated, nothing was emailed)'); save();
+  }
+}
+setInterval(()=>{ tick(); if(view==='inbox'){ /* refresh relative times quietly */ } },15000);
+
+/* ---------- Boot ---------- */
+if(!S.digestCount) S.digestCount=1;
+buildDigest();
+renderAll();
+syncFilterInputs();
+if(window.matchMedia('(min-width:1180px)').matches){ const first=filtered()[0]; if(first){ selected=first.id; renderList(); renderDetail(); } }
+setView(location.hash.slice(1)||'inbox');
+tick();
+})();
+</script>
+
+</body>
+</html>
