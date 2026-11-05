@@ -266,6 +266,23 @@ tr:last-child td{border-bottom:0}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:100;max-width:calc(100vw - 32px)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* Sign-in gate */
+body.locked .topbar,body.locked .banner,body.locked .shell{display:none}
+#auth-gate{display:none;min-height:100vh;place-items:center;padding-block:32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body.locked #auth-gate{display:grid}
+.gate{width:min(420px,100%);background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.gate::before{content:"";display:block;height:4px;background:var(--rainbow)}
+.gate-in{padding:28px 28px 24px;display:flex;flex-direction:column;gap:16px}
+.gate .brand b{font-size:22px}
+.gate h1{font-size:20px;font-weight:800;letter-spacing:-.015em}
+.gate p{margin:0;color:var(--fg-2)}
+.gate form{display:flex;flex-direction:column;gap:10px}
+.gate label{font-weight:600;font-size:13px}
+.gate input{width:100%;padding:10px 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg);font-size:15px}
+.gate .btn{padding:10px 14px;font-size:14px}
+.gate .fine{font-size:12px;color:var(--fg-3)}
+.user-chip{font-size:12.5px;color:var(--fg-2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* Responsive */
 @media (max-width:1179px){
   .split{grid-template-columns:minmax(0,1fr)}
@@ -295,7 +312,26 @@ tr:last-child td{border-bottom:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div id="auth-gate">
+  <div class="gate" role="main" aria-labelledby="gate-title">
+    <div class="gate-in">
+      <div class="brand"><b>Volta</b><span>Social Media Command Centre</span></div>
+      <div>
+        <h1 id="gate-title">Sign in</h1>
+        <p id="gate-lede">Enter your work email and we'll send you a one-time sign-in link.</p>
+      </div>
+      <form id="gate-form" novalidate>
+        <label for="gate-email">Work email</label>
+        <input id="gate-email" type="email" autocomplete="email" placeholder="you@voltaeffect.com" required>
+        <button class="btn primary" id="gate-submit" type="submit">Send sign-in link</button>
+      </form>
+      <div id="gate-msg" role="status" aria-live="polite"></div>
+      <p class="fine">Access is by invitation only. If you need access, ask your Volta administrator to invite you.</p>
+    </div>
+  </div>
+</div>
 
 <header class="topbar">
   <div class="topbar-in">
@@ -305,6 +341,8 @@ tr:last-child td{border-bottom:0}
       <div class="clock" title="Simulated clock. It starts at 12:58 p.m. each time the page loads."><span class="dot" aria-hidden="true"></span><span id="clock" class="mono">Thu, Nov 5 · 12:58 p.m.</span><span>AST (simulated)</span></div>
       <button class="btn sm" id="sim-new" data-act="simulate">+ Simulate new interaction</button>
       <button class="btn sm ghost" id="reset" data-act="reset">Reset demo</button>
+      <span class="user-chip" id="user-email" title="Signed in"></span>
+      <button class="btn sm" id="sign-out" type="button">Sign out</button>
     </div>
   </div>
 </header>
@@ -452,6 +490,65 @@ tr:last-child td{border-bottom:0}
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script>
+/* ---------- Sign-in (Supabase Auth, invite-only magic links) ---------- */
+(function(){
+  'use strict';
+  // Public project URL and publishable key. These are safe in the browser; the secret key never goes here.
+  const SUPABASE_URL='https://kjvcfreyvrevanyuwhbr.supabase.co';
+  const SUPABASE_KEY='sb_publishable_RUA8iaxRa739SU2lzgHu7g_lKzdQFa9';
+  const msg=document.getElementById('gate-msg');
+  const form=document.getElementById('gate-form');
+  const input=document.getElementById('gate-email');
+  const submit=document.getElementById('gate-submit');
+  const say=(text,kind)=>{ msg.innerHTML=text?`<div class="notice ${kind||'muted'}">${text}</div>`:''; };
+
+  if(!window.supabase||!window.supabase.createClient){
+    say('The sign-in service could not load. Check your connection and refresh the page.','bad');
+    submit.disabled=true; return;
+  }
+  const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,detectSessionInUrl:true}});
+  window.voltaAuth=sb;
+
+  function apply(session){
+    if(session&&session.user){
+      document.body.classList.remove('locked');
+      document.getElementById('user-email').textContent=session.user.email||'';
+    }else{
+      document.body.classList.add('locked');
+      document.getElementById('user-email').textContent='';
+    }
+  }
+  sb.auth.getSession().then(({data})=>apply(data.session));
+  sb.auth.onAuthStateChange((_event,session)=>apply(session));
+
+  // Errors Supabase can put in the address after a bad or expired link
+  const hp=new URLSearchParams(location.hash.slice(1));
+  if(hp.get('error_description')){ say(hp.get('error_description').replace(/\+/g,' ')+'. Request a new link below.','bad'); history.replaceState(null,'',location.pathname); }
+
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const email=input.value.trim().toLowerCase();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ say('Enter a valid email address.','warn'); input.focus(); return; }
+    submit.disabled=true; submit.textContent='Sending…'; say('');
+    const {error}=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:location.origin+location.pathname}});
+    submit.disabled=false; submit.textContent='Send sign-in link';
+    if(error){
+      const m=(error.message||'').toLowerCase();
+      if(m.includes('signup')||m.includes('not allowed')||m.includes('not found')) say('That email has not been invited yet. Ask your Volta administrator for access.','warn');
+      else if(m.includes('rate')||error.status===429) say('Too many sign-in emails were sent recently. Wait a few minutes and try again.','warn');
+      else say('Could not send the link: '+error.message,'bad');
+      return;
+    }
+    say(`Check <b>${email.replace(/[<>&"]/g,'')}</b> for a sign-in link. It works once and expires in an hour. Open it on this device.`,'ok');
+  });
+
+  document.getElementById('sign-out').addEventListener('click',async()=>{
+    await sb.auth.signOut(); say('You have been signed out.','muted');
+  });
+})();
+</script>
 <script>
 (function(){
 'use strict';

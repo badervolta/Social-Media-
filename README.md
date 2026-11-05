@@ -13,6 +13,8 @@ One place for Volta's communications lead to monitor and prioritize LinkedIn, Fa
 - **Moderation queue**: possible abusive, spam or personal-information comments, blurred until revealed. A person decides: keep, hide manually, or escalate.
 - **1:00 p.m. digest**: an email-style summary rebuilt on demand from current data, with copy-as-text.
 
+**Sign-in**: the dashboard is behind Supabase Auth (project `kjvcfreyvrevanyuwhbr`). Access is invite-only: public sign-ups are off, and team members are invited from Supabase → Authentication → Users → Invite user. They sign in with a one-time email link. The publishable key in `index.html` is safe to be public; never commit the secret key.
+
 State is saved in the browser's local storage only. "Reset demo" restores the sample data.
 
 ## Run locally
