@@ -221,6 +221,25 @@ textarea{width:100%;min-height:150px;resize:vertical;border:1px solid var(--bord
 .mod-policy p{margin:0;color:var(--fg-2)}
 .subhead{font-size:15px;font-weight:800;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
 
+/* Spoken catch-up (podcast) */
+.pod{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 14px;align-items:center}
+.pod-icon{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.pod-icon svg{width:22px;height:22px}
+.pod-title{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.pod-title b{font-size:15px}
+.pod-len{font-size:12px;color:var(--fg-3)}
+.pod-status{font-size:13px;color:var(--fg-2)}
+.pod-bar{height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:6px}
+.pod-bar span{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.pod-ctrls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.pod-ctrls select{padding:6px 8px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg);font-size:13px;max-width:180px}
+.pod-script{grid-column:1/-1;font-size:13px;color:var(--fg-2)}
+.pod-script summary{cursor:pointer;color:var(--accent);font-weight:600;width:max-content}
+.pod-script p{margin:8px 0 0;max-width:72ch}
+.pod-script p b{color:var(--fg)}
+.pod.unsupported .pod-ctrls{display:none}
+@media (max-width:899px){.pod{grid-template-columns:auto minmax(0,1fr)}.pod-ctrls{grid-column:1/-1;justify-content:flex-start}}
+
 /* Digest */
 .digest-wrap{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start}
 .email{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
@@ -443,6 +462,22 @@ body.locked #auth-gate{display:grid}
           <button class="btn primary" data-act="gen-digest">Generate digest</button>
         </div>
       </div>
+      <section class="pod" id="pod" aria-labelledby="pod-title">
+        <div class="pod-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="7" rx="1.5"/><rect x="17" y="14" width="4" height="7" rx="1.5"/></svg></div>
+        <div class="pod-main">
+          <div class="pod-title"><b id="pod-title">Today's catch-up</b><span class="pod-len" id="pod-len"></span></div>
+          <div class="pod-status" id="pod-status" aria-live="polite">A short spoken version of the digest, read aloud by your device.</div>
+          <div class="pod-bar" aria-hidden="true"><span id="pod-fill"></span></div>
+        </div>
+        <div class="pod-ctrls" id="pod-ctrls">
+          <button class="btn primary" id="pod-play" data-act="pod-play" type="button">Play</button>
+          <button class="btn" data-act="pod-skip" type="button">Next section</button>
+          <button class="btn ghost" data-act="pod-restart" type="button">Restart</button>
+          <label><span class="sr">Speed</span><select id="pod-rate"><option value="1">1×</option><option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option></select></label>
+          <label><span class="sr">Voice</span><select id="pod-voice"><option value="">Default voice</option></select></label>
+        </div>
+        <details class="pod-script"><summary>Read the script</summary><div id="pod-script"></div></details>
+      </section>
       <div class="digest-wrap">
         <article class="email" id="digest"></article>
         <aside class="panel">
@@ -499,6 +534,7 @@ body.locked #auth-gate{display:grid}
             <tr><td>Suggested replies</td><td class="sim">Templates</td><td>Pre-written Volta-voice templates chosen by the matching rule. Editable. Facts you must check appear in [brackets] and block approval.</td></tr>
             <tr><td>Approve reply</td><td class="yes">Works</td><td>Records who approved it and when. Never posts. You copy it and post it yourself.</td></tr>
             <tr><td>Moderation decisions</td><td class="yes">Works</td><td>Records your decision. Never hides, deletes or blocks anything. You act in the platform yourself.</td></tr>
+            <tr><td>Spoken catch-up</td><td class="yes">Works</td><td>Reads the digest aloud using your device's built-in voice. Free, and nothing is sent anywhere. Flagged comments are never read out.</td></tr>
             <tr><td>1:00 p.m. digest</td><td class="yes">Summary works</td><td>"Generate digest" builds it from current data. Email delivery and scheduling aren't set up yet.</td></tr>
             <tr><td>New activity arriving</td><td class="sim">Not connected yet</td><td>Starts once Facebook, Instagram and LinkedIn are connected. Nothing is synced today.</td></tr>
             <tr><td>Connected accounts</td><td class="sim">Setup in progress</td><td>The page is ready. Connecting opens once Volta's Meta and LinkedIn developer setup is finished.</td></tr>
@@ -989,6 +1025,7 @@ function buildDigest(){
     `REPLY WHEN YOU CAN (${needs.length})`,...needs.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
     `GOOD NEWS (${good.length})`,...good.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
     `Handled: ${reviewed} reviewed, ${fu.length} follow-up, ${approvedR} replies approved (not posted).`].join('\n');
+  buildPodcast({inWin,cnt,urgent,needs,modQ,good,reviewed,fu,approvedR,now});
   lastGenAt=now;
 }
 function renderDigest(){ $('#digest').innerHTML=digestHTML; $('#gen-meta').textContent=`Generation #${S.digestCount||1} at ${fmtTime(lastGenAt)} (Atlantic time)`; }
@@ -1158,7 +1195,129 @@ async function start(session){
   if(window.matchMedia('(min-width:1180px)').matches){ const first=filtered()[0]; if(first){ selected=first.id; renderList(); renderDetail(); } }
   setView(location.hash.slice(1)||'inbox');
 }
-function stop(){ started=false; loaded=false; me=null; S={items:[],digestCount:0,conns:[]}; selected=null; revealed.clear(); }
+/* ---------- Spoken catch-up: the digest as a short podcast, read by the device's own voice ---------- */
+const SPEECH=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+const pod={segs:[],queue:[],pos:0,playing:false,tok:0,rate:1,voice:''};
+try{ pod.rate=+(localStorage.getItem('volta-pod-rate')||1)||1; pod.voice=localStorage.getItem('volta-pod-voice')||''; }catch(e){}
+const RULE_SAY={media:'a media request',billing:'a billing problem',deadline:'a request with a deadline',access:'an accessibility question',
+  partner:'a partnership opportunity',complaint:'a complaint',job:'a question about a job posting',application:'a question about applications',
+  event:'a question about an event',question:'a question',dm:'a direct message',positive:'some kind words',share:'a share'};
+// Never speak links, emails or phone numbers; tidy handles so they read naturally
+function speakable(s){
+  return String(s||'').replace(/https?:\/\/\S+|\b\S+\.(com|ca|ly|org|net)\/\S*/gi,'a link').replace(/\S+@\S+\.\S+/g,'an email address')
+    .replace(/\+?\d[\d\s().-]{7,}\d/g,'a phone number').replace(/\[[^\]]*\]/g,'').replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu,'')
+    .replace(/\s+/g,' ').trim();
+}
+const sayName=n=>speakable(String(n||'someone').replace(/^@/,'').replace(/[._]+/g,' '));
+function firstSentence(s,max){ const t=speakable(s); const m=t.match(/^.*?[.?!](?=\s+[A-Z\u201c"]|$)/); let o=(m?m[0]:t).trim(); const w=o.split(' '); if(w.length>max) o=w.slice(0,max).join(' ')+'…'; return o; }
+const plural=(n,one,many)=>n===1?one:many;
+const numWord=n=>['no','one','two','three','four','five','six','seven','eight','nine','ten'][n]||String(n);
+function buildPodcast(d){
+  const hr=+new Intl.DateTimeFormat('en-CA',{timeZone:TZ,hour:'numeric',hourCycle:'h23'}).format(new Date(d.now));
+  const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  const day=new Date(d.now).toLocaleDateString('en-CA',{timeZone:TZ,weekday:'long',month:'long',day:'numeric'});
+  const connected=(S.conns||[]).some(c=>c.status==='connected');
+  const segs=[];
+  let intro=`${greet}. Here's your social media catch-up for ${day}.`;
+  if(!d.inWin.length){
+    intro+=connected?' It’s been a quiet stretch. Nothing new has come in since yesterday at one o’clock.'
+      :' Volta’s social accounts aren’t connected yet, so there’s nothing to report today. Once they’re connected, this catch-up will cover every comment, message and mention.';
+    segs.push({title:'Welcome',text:intro});
+    segs.push({title:'Wrap-up',text:'That’s all for now. Have a great rest of your day.'});
+  }else{
+    const parts=[['LinkedIn',d.cnt('linkedin')],['Facebook',d.cnt('facebook')],['Instagram',d.cnt('instagram')]].filter(p=>p[1]).map(p=>`${numWord(p[1])} on ${p[0]}`);
+    intro+=` Since yesterday at one o’clock, ${numWord(d.inWin.length)} ${plural(d.inWin.length,'interaction has','interactions have')} come in: ${parts.length>1?parts.slice(0,-1).join(', ')+' and '+parts.slice(-1):parts[0]}.`;
+    intro+=d.urgent.length?` ${numWord(d.urgent.length).replace(/^./,c=>c.toUpperCase())} ${plural(d.urgent.length,'thing needs','things need')} your attention first.`:' Nothing urgent is waiting, which is good news.';
+    segs.push({title:'Welcome',text:intro});
+    if(d.urgent.length){
+      const lines=d.urgent.slice(0,5).map((i,n)=>`${n===0?'First':n===1?'Next':'Also'}, ${sayName(i.sender)} sent ${RULE_SAY[i.rule]||'a message'} on ${PLAT[i.platform].name}. They wrote: “${firstSentence(i.content,24)}”`);
+      if(d.urgent.length>5) lines.push(`There are ${d.urgent.length-5} more urgent items in the inbox.`);
+      segs.push({title:'Do first',text:'Let’s start with what needs you first. '+lines.join(' ')});
+    }
+    if(d.modQ.length){
+      segs.push({title:'Moderation',text:`${numWord(d.modQ.length).replace(/^./,c=>c.toUpperCase())} ${plural(d.modQ.length,'comment is','comments are')} waiting in moderation because ${plural(d.modQ.length,'it','they')} may be abusive or spam, or may include personal information. ${plural(d.modQ.length,'It isn’t','They aren’t')} read out here. Please review ${plural(d.modQ.length,'it','them')} in the Moderation tab.`});
+    }
+    if(d.needs.length){
+      const top=d.needs.slice(0,3).map(i=>`${sayName(i.sender)} on ${PLAT[i.platform].name}, with ${RULE_SAY[i.rule]||'a question'}`);
+      segs.push({title:'Reply when you can',text:`When you have a moment, ${numWord(d.needs.length)} ${plural(d.needs.length,'person is','people are')} waiting for a reply. ${top.length?'That includes '+(top.length>1?top.slice(0,-1).join('; ')+'; and '+top.slice(-1):top[0])+'.':''}`});
+    }
+    if(d.good.length){
+      const g=d.good.slice(0,2).map(i=>`${sayName(i.sender)} on ${PLAT[i.platform].name} wrote: “${firstSentence(i.content,20)}”`);
+      segs.push({title:'Good news',text:'Some good news to share. '+g.join(' And ')+' These could be worth a like or a reshare.'});
+    }
+    const done=[];
+    if(d.reviewed) done.push(`${numWord(d.reviewed)} ${plural(d.reviewed,'item has','items have')} already been reviewed`);
+    if(d.fu.length) done.push(`${numWord(d.fu.length)} ${plural(d.fu.length,'is','are')} marked for follow-up`);
+    if(d.approvedR) done.push(`${numWord(d.approvedR)} approved ${plural(d.approvedR,'reply is','replies are')} waiting to be posted`);
+    segs.push({title:'Wrap-up',text:(done.length?'Before you go: '+done.join(', ')+'. ':'')+'That’s your catch-up. Have a great rest of your day.'});
+  }
+  pod.segs=segs;
+  const words=segs.reduce((n,s)=>n+s.text.split(/\s+/).length,0);
+  const secs=Math.max(15,Math.round(words/(155*pod.rate)*60));
+  const len=$('#pod-len'); if(len) len.textContent=secs<60?`about ${secs} seconds`:`about ${Math.round(secs/60)} min`;
+  const sc=$('#pod-script'); if(sc) sc.innerHTML=segs.map(s=>`<p><b>${esc(s.title)}.</b> ${esc(s.text)}</p>`).join('');
+}
+function podVoices(){
+  if(!SPEECH) return [];
+  const score=v=>(/premium|enhanced|natural|neural/i.test(v.name)?4:0)+(/google|siri/i.test(v.name)?2:0)+(/en[-_]CA/i.test(v.lang)?1.5:/en[-_](US|GB)/i.test(v.lang)?1:0)+(v.localService?0.2:0);
+  return speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).sort((a,b)=>score(b)-score(a));
+}
+function fillVoices(){
+  const sel=$('#pod-voice'); if(!sel) return;
+  const vs=podVoices(); if(!vs.length) return;
+  if(!pod.voice||!vs.some(v=>v.voiceURI===pod.voice)) pod.voice=vs[0].voiceURI;
+  sel.innerHTML=vs.map(v=>`<option value="${esc(v.voiceURI)}"${v.voiceURI===pod.voice?' selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('');
+}
+function podStatus(){
+  const st=$('#pod-status'), btn=$('#pod-play'), fill=$('#pod-fill'); if(!st) return;
+  const q=pod.queue[pod.pos];
+  if(pod.playing&&q){ st.textContent=`Playing: ${pod.segs[q.si].title} (${q.si+1} of ${pod.segs.length})`; }
+  else if(pod.queue.length&&pod.pos<pod.queue.length){ st.textContent=`Paused: ${pod.segs[q.si].title}`; }
+  else st.textContent='A short spoken version of the digest, read aloud by your device.';
+  btn.textContent=pod.playing?'Pause':(pod.queue.length&&pod.pos>0&&pod.pos<pod.queue.length?'Resume':'Play');
+  fill.style.width=(pod.queue.length?Math.round(pod.pos/pod.queue.length*100):0)+'%';
+}
+function podSpeakNext(){
+  if(!pod.playing) return;
+  if(pod.pos>=pod.queue.length){ pod.playing=false; pod.queue=[]; pod.pos=0; podStatus(); $('#pod-status').textContent='Finished. Press Play to listen again.'; return; }
+  const tok=++pod.tok, q=pod.queue[pod.pos];
+  const u=new SpeechSynthesisUtterance(q.t);
+  const v=podVoices().find(x=>x.voiceURI===pod.voice); if(v){ u.voice=v; u.lang=v.lang; } else u.lang='en-CA';
+  u.rate=pod.rate; u.pitch=1;
+  const next=()=>{ if(tok!==pod.tok||!pod.playing) return; pod.pos++; podStatus(); setTimeout(podSpeakNext,q.end?450:120); };
+  u.onend=next; u.onerror=e=>{ if(e&&(e.error==='interrupted'||e.error==='canceled')) return; next(); };
+  speechSynthesis.speak(u); podStatus();
+}
+function podHalt(){ pod.tok++; if(SPEECH) speechSynthesis.cancel(); }
+function podPlay(){
+  if(!SPEECH) return;
+  if(pod.playing){ pod.playing=false; podHalt(); podStatus(); return; }
+  if(!pod.queue.length||pod.pos>=pod.queue.length){
+    if(!pod.segs.length) buildDigest();
+    pod.queue=[]; pod.pos=0;
+    pod.segs.forEach((s,si)=>{ const parts=s.text.split(/(?<=[.!?…][”"]?)\s+(?=[A-Z“"])/); parts.forEach((t,k)=>{ t=t.trim(); if(t) pod.queue.push({si,t,end:k===parts.length-1}); }); });
+  }
+  podHalt(); pod.playing=true; podSpeakNext();
+}
+function podSkip(){
+  if(!pod.queue.length){ podPlay(); return; }
+  const cur=(pod.queue[pod.pos]||{}).si; let i=pod.pos; while(i<pod.queue.length&&pod.queue[i].si===cur) i++;
+  pod.pos=i; podHalt(); if(pod.playing) podSpeakNext(); else podStatus();
+}
+function podRestart(){ podHalt(); pod.queue=[]; pod.pos=0; pod.playing=false; podPlay(); }
+if(SPEECH){ fillVoices(); speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',fillVoices):(speechSynthesis.onvoiceschanged=fillVoices); }
+else { const p=$('#pod'); if(p){ p.classList.add('unsupported'); $('#pod-status').textContent='This browser can’t read aloud. Try Chrome, Edge or Safari, or read the script below.'; } }
+$('#pod-rate').value=String(pod.rate);
+document.addEventListener('change',e=>{
+  if(e.target.id==='pod-rate'){ pod.rate=+e.target.value||1; try{localStorage.setItem('volta-pod-rate',String(pod.rate));}catch(_){} if(pod.playing){ podHalt(); podSpeakNext(); } }
+  if(e.target.id==='pod-voice'){ pod.voice=e.target.value; try{localStorage.setItem('volta-pod-voice',pod.voice);}catch(_){} if(pod.playing){ podHalt(); podSpeakNext(); } }
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act^="pod-"]'); if(!b) return;
+  if(b.dataset.act==='pod-play') podPlay(); else if(b.dataset.act==='pod-skip') podSkip(); else if(b.dataset.act==='pod-restart') podRestart();
+});
+
+function stop(){ podHalt(); pod.playing=false; pod.queue=[]; pod.pos=0; started=false; loaded=false; me=null; S={items:[],digestCount:0,conns:[]}; selected=null; revealed.clear(); }
 window.addEventListener('volta:auth',e=>{ if(e.detail) start(e.detail); else stop(); });
 showLoading();
 syncFilterInputs();
