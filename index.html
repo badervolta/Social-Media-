@@ -266,6 +266,19 @@ tr:last-child td{border-bottom:0}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:100;max-width:calc(100vw - 32px)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* Connected accounts */
+.conn-list{display:flex;flex-direction:column;gap:10px}
+.conn{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.conn .meta{flex:1 1 240px;min-width:0}
+.conn .meta b{display:block;font-size:15px}
+.conn .meta span{font-size:13px;color:var(--fg-2)}
+.conn.ok{border-color:color-mix(in srgb,var(--done) 45%,var(--border))}
+.conn.ok .meta span{color:var(--done)}
+.conn.warn{border-color:color-mix(in srgb,var(--needs) 45%,var(--border))}
+.conn.warn .meta span{color:var(--needs)}
+.conn-tips{margin:0;padding-left:18px;color:var(--fg-2);display:flex;flex-direction:column;gap:4px}
+.loading{padding:40px 20px;text-align:center;color:var(--fg-3)}
+
 /* Sign-in gate */
 body.locked .topbar,body.locked .banner,body.locked .shell{display:none}
 #auth-gate{display:none;min-height:100vh;place-items:center;padding-block:32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -336,7 +349,7 @@ body.locked #auth-gate{display:grid}
         <button class="btn primary" id="gate-submit" type="submit">Send sign-in link</button>
       </form>
       <div id="gate-msg" role="status" aria-live="polite"></div>
-      <p class="fine">Access is by invitation only. If you need access, ask your Volta administrator to invite you.</p>
+      <p class="fine">Access is by invitation only. If you need access, ask your Volta administrator to invite you. <a href="privacy.html">Privacy policy</a></p>
     </div>
   </div>
 </div>
@@ -346,7 +359,7 @@ body.locked #auth-gate{display:grid}
     <div class="brand"><b>Volta</b><span>Social Media Command Centre</span></div>
     <span class="proto" title="Fictional sample data. Nothing is connected, sent or posted.">Prototype · fictional data</span>
     <div class="top-right">
-      <div class="clock" title="Simulated clock. It starts at 12:58 p.m. each time the page loads."><span class="dot" aria-hidden="true"></span><span id="clock" class="mono">Thu, Nov 5 · 12:58 p.m.</span><span>AST (simulated)</span></div>
+      <div class="clock" title="Simulated clock. It starts at 12:58 p.m. each time the page loads."><span class="dot" aria-hidden="true"></span><span id="clock" class="mono">Thu, Nov 5 · 12:58 p.m.</span><span>Atlantic time</span></div>
       <button class="btn sm" id="sim-new" data-act="simulate">+ Simulate new interaction</button>
       <button class="btn sm ghost" id="reset" data-act="reset">Reset demo</button>
       <span class="user-chip" id="user-email" title="Signed in"></span>
@@ -354,7 +367,7 @@ body.locked #auth-gate{display:grid}
     </div>
   </div>
 </header>
-<div class="banner"><strong>Prototype only.</strong> All people, organizations and messages are fictional. Nothing is connected to LinkedIn, Facebook or Instagram, and nothing is ever sent, posted, hidden or deleted. Classification uses simple keyword rules, not AI.</div>
+<div class="banner"><strong>Sample data.</strong> All people, organizations and messages are fictional until Volta's accounts are connected. Changes are saved and shared with your team. Nothing is connected to LinkedIn, Facebook or Instagram, and nothing is ever sent, posted, hidden or deleted. Classification uses simple keyword rules, not AI.</div>
 
 <div class="shell">
   <aside class="side" aria-label="Main navigation">
@@ -362,6 +375,7 @@ body.locked #auth-gate{display:grid}
       <a href="#inbox" data-view="inbox"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9.5h3.2l1 1.8h3.6l1-1.8H14"/><path d="M3.6 3h8.8L14 9.5V13H2V9.5z"/></svg>Unified inbox<span class="count" id="c-inbox">0</span></a>
       <a href="#moderation" data-view="moderation"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 1.8l5.2 2v4c0 3-2.2 5.3-5.2 6.4C5 13.1 2.8 10.8 2.8 7.8v-4z"/><path d="M8 5v3.4M8 10.6v.1"/></svg>Moderation<span class="count" id="c-mod">0</span></a>
       <a href="#digest" data-view="digest"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.4 1.5"/></svg>1:00 p.m. digest<span class="count" id="c-digest" hidden>new</span></a>
+      <a href="#accounts" data-view="accounts"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6.5 9.5l3-3"/><path d="M7.2 4.6l1.1-1.1a2.6 2.6 0 0 1 3.7 3.7l-1.1 1.1"/><path d="M8.8 11.4l-1.1 1.1a2.6 2.6 0 0 1-3.7-3.7l1.1-1.1"/></svg>Connected accounts</a>
       <a href="#about" data-view="about"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7.2V11M8 5v.1"/></svg>About this prototype</a>
     </nav>
     <div class="side-block">
@@ -442,9 +456,30 @@ body.locked #auth-gate{display:grid}
             <dt>Covers</dt><dd>Since 1:00 p.m. the previous day</dd>
             <dt>Status</dt><dd><span class="sim">Not scheduled</span></dd>
           </dl>
-          <p>This prototype does not send email or run on a schedule. The page shows a notice when its simulated clock passes 1:00 p.m. In a pilot, a scheduler would build and send this summary.</p>
+          <p>This prototype does not send email or run on a schedule. While the dashboard is open, it shows a notice at 1:00 p.m. Atlantic time. Each generated digest is saved for the team. Scheduled email delivery comes in a later phase.</p>
           <p id="gen-meta" class="mono" style="font-size:12px;color:var(--fg-3)"></p>
         </aside>
+      </div>
+    </section>
+
+    <!-- CONNECTED ACCOUNTS -->
+    <section id="view-accounts" hidden aria-labelledby="h-accounts">
+      <div class="view-head">
+        <div>
+          <div class="eyebrow">Settings</div>
+          <h1 id="h-accounts">Connect your social accounts</h1>
+          <p>Click a button, sign in to the platform, and choose the Volta page. Your social media passwords are never shared with this dashboard, and nothing is ever posted without a person's approval.</p>
+        </div>
+      </div>
+      <div class="conn-list" id="conn-list"></div>
+      <div class="panel" style="margin-top:16px">
+        <h3>Before you connect</h3>
+        <ul class="conn-tips">
+          <li><b>Facebook:</b> you need full control of the Volta Facebook Page.</li>
+          <li><b>Instagram:</b> Volta's Instagram must be a business account linked to that Facebook Page. Connecting Facebook connects it too.</li>
+          <li><b>LinkedIn:</b> you need to be an admin of the Volta LinkedIn Page.</li>
+          <li>You can disconnect any account at any time.</li>
+        </ul>
       </div>
     </section>
 
@@ -461,14 +496,15 @@ body.locked #auth-gate{display:grid}
         <table>
           <thead><tr><th>Feature</th><th>In this prototype</th><th>How</th></tr></thead>
           <tbody>
-            <tr><td>Unified feed, filters, search, sorting</td><td class="yes">Works</td><td>Runs in your browser on 24 fictional interactions.</td></tr>
-            <tr><td>Mark reviewed, follow-up, reopen</td><td class="yes">Works</td><td>Saved in this browser only. "Reset demo" restores the sample data.</td></tr>
+            <tr><td>Unified feed, filters, search, sorting</td><td class="yes">Works</td><td>Loads from Volta's secure database. Still fictional sample data until accounts are connected.</td></tr>
+            <tr><td>Mark reviewed, follow-up, reopen</td><td class="yes">Works</td><td>Saved for the whole team, with who did what in each item's history. Admins can reset the sample data.</td></tr>
             <tr><td>Priority classification and the "why"</td><td class="sim">Simulated</td><td>Keyword rules, shown openly on every item. Not AI. Some items will be misjudged, which is useful for testing.</td></tr>
             <tr><td>Suggested replies</td><td class="sim">Simulated</td><td>Pre-written Volta-voice templates chosen by the matching rule. Editable. Facts you must check appear in [brackets] and block approval.</td></tr>
-            <tr><td>Approve reply</td><td class="sim">Simulated</td><td>Records your approval. Never posts. You copy it and post it yourself.</td></tr>
+            <tr><td>Approve reply</td><td class="yes">Works</td><td>Records who approved it and when. Never posts. You copy it and post it yourself.</td></tr>
             <tr><td>Moderation decisions</td><td class="sim">Simulated</td><td>Records your decision. Never hides, deletes or blocks anything.</td></tr>
             <tr><td>1:00 p.m. digest</td><td class="yes">Summary works</td><td>"Generate digest" rebuilds it from current data. Delivery and scheduling are not real.</td></tr>
-            <tr><td>New activity arriving</td><td class="sim">Simulated</td><td>"Simulate new interaction" adds one of three extra sample items. No live sync.</td></tr>
+            <tr><td>New activity arriving</td><td class="sim">Simulated</td><td>"Simulate new interaction" adds one of three extra sample items for everyone. Real platforms connect in the next phase.</td></tr>
+            <tr><td>Connected accounts</td><td class="sim">Setup in progress</td><td>The page is ready. Connecting opens once Volta's Meta and LinkedIn developer setup is finished.</td></tr>
           </tbody>
         </table>
       </div>
@@ -486,7 +522,8 @@ body.locked #auth-gate{display:grid}
         <div class="panel">
           <h3>Safety rules built in</h3>
           <ul>
-            <li>No credentials, no accounts connected, no network calls.</li>
+            <li>No social accounts connected yet. Data is stored in Supabase and only signed-in, invited Volta staff can read it.</li>
+            <li>The browser can never delete real data, edit message content, or send anything.</li>
             <li>No reply can be approved while it still contains a [placeholder].</li>
             <li>Offensive comments are blurred until you choose to read them.</li>
             <li>Every action is written to the item's activity history.</li>
@@ -527,6 +564,9 @@ body.locked #auth-gate{display:grid}
       document.body.classList.add('locked');
       document.getElementById('user-email').textContent='';
     }
+    // Tell the dashboard who is signed in so it can load the team's shared data
+    window.voltaSession=session&&session.user?session:null;
+    window.dispatchEvent(new CustomEvent('volta:auth',{detail:window.voltaSession}));
   }
   sb.auth.getSession().then(({data})=>apply(data.session));
   sb.auth.onAuthStateChange((_event,session)=>apply(session));
@@ -577,13 +617,22 @@ body.locked #auth-gate{display:grid}
 <script>
 (function(){
 'use strict';
-const KEY='volta-cc-v1';
-const BASE=new Date('2026-11-05T12:58:00-04:00').getTime();
-const LOADED=Date.now();
 const TZ='America/Halifax';
-const simNow=()=>BASE+(Date.now()-LOADED);
-const DIGEST_AT=new Date('2026-11-05T13:00:00-04:00').getTime();
-const WINDOW_START=new Date('2026-11-04T13:00:00-04:00').getTime();
+const simNow=()=>Date.now();
+// Halifax wall-clock time to a timestamp, handling daylight saving
+function tzOffsetMin(ts){
+  const p=new Intl.DateTimeFormat('en-US',{timeZone:TZ,timeZoneName:'longOffset'}).formatToParts(new Date(ts)).find(x=>x.type==='timeZoneName').value;
+  const m=p.match(/GMT([+-])(\d{2}):?(\d{2})?/); if(!m) return 0;
+  return (m[1]==='-'?-1:1)*(+m[2]*60+(+m[3]||0));
+}
+function halifaxAt(dayOffset,hour){
+  const parts=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const g=t=>+parts.find(x=>x.type===t).value;
+  const guess=Date.UTC(g('year'),g('month')-1,g('day')+dayOffset,hour,0,0);
+  return guess-tzOffsetMin(guess)*60000;
+}
+const digestAt=()=>halifaxAt(0,13);       // today 1:00 p.m. Atlantic
+const windowStart=()=>halifaxAt(-1,13);   // yesterday 1:00 p.m. Atlantic
 
 const PLAT={
   linkedin:{name:'LinkedIn',short:'LI',account:'Volta · company page'},
@@ -598,7 +647,7 @@ const SEED=[
  {id:'i01',platform:'linkedin',type:'Direct message',sender:'Priya Raman',meta:'Producer, Coastal Morning Radio (fictional)',mins:14,content:"Hi Volta team, I'm producing a segment on Atlantic Canadian startups for tomorrow's show. Is someone available for a 10-minute phone interview before 4 p.m. today? Sorry for the short notice."},
  {id:'i02',platform:'facebook',type:'Direct message',sender:'Linda Okafor',mins:41,content:"Hi, I was charged twice for my coworking day pass on Monday. Can someone help me get a refund for the extra charge?"},
  {id:'i03',platform:'instagram',type:'Comment',sender:'@jordy.builds',ctx:'On post: Winter cohort announcement',mins:52,content:"This place is a scam, they take your money and give you nothing. f*** this."},
- {id:'i04',platform:'linkedin',type:'Direct message',sender:'Andrew Chen',meta:'Program Officer, Maritime Growth Fund (fictional)',mins:96,status:'followup',content:"Following up on last week's note. Could you send the Q3 program impact numbers by Friday? Our board meets Monday.",log:[{at:BASE-80*60000,a:'Marked for follow-up. Asked finance for Q3 numbers.'}]},
+ {id:'i04',platform:'linkedin',type:'Direct message',sender:'Andrew Chen',meta:'Program Officer, Maritime Growth Fund (fictional)',mins:96,status:'followup',content:"Following up on last week's note. Could you send the Q3 program impact numbers by Friday? Our board meets Monday."},
  {id:'i05',platform:'instagram',type:'Direct message',sender:'@saltwatercoffee.co',meta:'Local café (fictional)',mins:120,content:"Hey! We'd love to sponsor coffee for your next founder event. Who's the best person to talk to about a partnership?"},
  {id:'i06',platform:'facebook',type:'Comment',sender:'Marcus Bell',ctx:'On event: Founders Pitch Night, Nov 12',mins:135,content:"Is Pitch Night still happening on the 12th? The registration page says sold out but my friend got a ticket yesterday."},
  {id:'i07',platform:'linkedin',type:'Comment',sender:'Sam Whitaker',ctx:"On post: We're hiring a Program Coordinator",mins:160,content:"Is the Program Coordinator role open to remote applicants, or is it in-person only?"},
@@ -700,19 +749,64 @@ function firstName(it){ return it.sender.startsWith('@')||it.meta&&/group|newsle
 function draft(it,variant){ const set=T[it.intent]||T.question; return set[variant%set.length](firstName(it)); }
 const hasPlaceholder=s=>/\[[^\]]+\]/.test(s||'');
 
-/* ---------- State ---------- */
-function prep(raw,minsOverride){
-  const mins=minsOverride!=null?minsOverride:raw.mins;
-  const ts=(minsOverride!=null?simNow():BASE)-mins*60000;
+/* ---------- State (shared with the team through Supabase) ---------- */
+let S={items:[],extraUsed:0,digestCount:0,conns:[]};
+let sb=null, me=null, started=false, loaded=false;
+
+// A fictional sample item, classified by the keyword rules, as a database row
+function toRow(raw,minsAgo){
   const c=classify(raw);
-  return Object.assign({},raw,c,{ts,status:raw.status||'new',reply:null,replyState:'none',variant:0,
-    mod:c.flags.length?'pending':null,
-    log:[{at:ts,a:'Received (sample data)'}].concat(raw.log||[]).concat(raw.status==='reviewed'?[{at:ts+30*60000,a:'Marked reviewed'}]:[])});
+  return {platform:raw.platform,external_id:'demo-'+raw.id,type:raw.type,sender:raw.sender,sender_meta:raw.meta||null,
+    context:raw.ctx||null,content:raw.content,received_at:new Date(Date.now()-minsAgo*60000).toISOString(),
+    priority:c.priority,reason:c.reason,rule:c.rule,match:c.match||null,intent:c.intent,flags:c.flags,
+    status:raw.status||'new',moderation:c.flags.length?'pending':null,is_demo:true};
 }
-function fresh(){ return {v:1,items:SEED.map(r=>prep(r)),extraUsed:0,digestCount:0,seenDigest:false}; }
-let S;
-try{ const raw=localStorage.getItem(KEY); const p=raw&&JSON.parse(raw); S=(p&&p.v===1&&Array.isArray(p.items))?p:fresh(); }catch(e){ S=fresh(); }
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function fromRow(r,d,logs){
+  const ts=Date.parse(r.received_at);
+  return {id:r.id,ext:r.external_id,platform:r.platform,type:r.type,sender:r.sender,meta:r.sender_meta,ctx:r.context,
+    content:r.content,ts,priority:r.priority,reason:r.reason||'',rule:r.rule||'',match:r.match||'',intent:r.intent||'question',
+    flags:Array.isArray(r.flags)?r.flags:[],status:r.status,mod:r.moderation,isDemo:r.is_demo,
+    reply:d?d.body:null,replyState:d?d.state:'none',variant:d?d.variant:0,
+    approvedAt:d&&d.approved_at?Date.parse(d.approved_at):null,approvedBy:d?d.approved_by:null,
+    log:[{at:ts,a:'Received'+(r.is_demo?' (sample data)':'')}].concat(logs.map(l=>({at:Date.parse(l.at),a:l.action+(l.actor_email?' · '+l.actor_email:'')})))};
+}
+async function loadAll(){
+  const [ir,dr,lr,cr,tr]=await Promise.all([
+    sb.from('interactions').select('*').order('received_at',{ascending:false}),
+    sb.from('reply_drafts').select('*'),
+    sb.from('activity_log').select('interaction_id,actor_email,action,at').order('at'),
+    sb.from('connected_accounts').select('*'),
+    sb.from('team_members').select('user_id,email,role')
+  ]);
+  const err=ir.error||dr.error||lr.error||cr.error||tr.error; if(err) throw err;
+  const dm={}; dr.data.forEach(d=>dm[d.interaction_id]=d);
+  const lm={}; lr.data.forEach(l=>(lm[l.interaction_id]=lm[l.interaction_id]||[]).push(l));
+  S.items=ir.data.map(r=>fromRow(r,dm[r.id],lm[r.id]||[]));
+  S.extraUsed=EXTRA.filter(x=>ir.data.some(r=>r.external_id==='demo-'+x.id)).length;
+  S.conns=cr.data;
+  S.team=tr.data;
+  loaded=true;
+}
+async function seedDemo(){
+  const {error}=await sb.from('interactions').upsert(SEED.map(r=>toRow(r,r.mins)),{onConflict:'platform,external_id',ignoreDuplicates:true});
+  if(error) throw error;
+}
+const emailOf=id=>((S.team||[]).find(t=>t.user_id===id)||{}).email||'a teammate';
+function fail(e){ console.error(e); toast('Couldn’t save that change. Check your connection and refresh the page.'); }
+// Workflow fields only (status, moderation decision). Content can't be changed from the browser.
+function save(i){
+  if(!i||!sb) return;
+  sb.from('interactions').update({status:i.status,moderation:i.mod,intent:i.intent,updated_at:new Date().toISOString()}).eq('id',i.id)
+    .then(({error})=>{ if(error) fail(error); });
+}
+function saveDraft(i){
+  if(!i||!sb||i.reply==null) return;
+  const approved=i.replyState==='approved';
+  sb.from('reply_drafts').upsert({interaction_id:i.id,body:i.reply,state:i.replyState==='none'?'draft':i.replyState,variant:i.variant,
+    approved_by:approved?i.approvedBy:null,approved_at:approved?new Date(i.approvedAt).toISOString():null,
+    updated_by:me.id,updated_at:new Date().toISOString()})
+    .then(({error})=>{ if(error) fail(error); });
+}
 
 const F={q:'',platform:'',priority:'',type:'',status:'',sort:'priority'};
 let selected=null, view='inbox', digestHTML='', digestText='', revealed=new Set(), lastGenAt=null;
@@ -729,7 +823,10 @@ function fmtFull(ts){ return new Date(ts).toLocaleDateString('en-CA',{timeZone:T
 function rel(ts){ const m=Math.round((simNow()-ts)/60000); if(m<1) return 'just now'; if(m<60) return m+' min ago'; const h=Math.floor(m/60); if(h<24) return h+' h ago'; return 'yesterday'; }
 function pbadge(p,sm){ return `<span class="pbadge ${p}${sm?' sm':''}" title="${PLAT[p].name}" aria-label="${PLAT[p].name}">${PLAT[p].short}</span>`; }
 function pill(i){ return `<span class="pill ${bucket(i)}">${bucketLabel(i)}</span>`; }
-function log(i,a){ i.log.push({at:simNow(),a}); }
+function log(i,a){
+  i.log.push({at:simNow(),a:a+(me?' · '+me.email:'')});
+  if(sb&&me) sb.from('activity_log').insert({interaction_id:i.id,actor:me.id,actor_email:me.email,action:a}).then(({error})=>{ if(error) fail(error); });
+}
 let toastT;
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
 async function copyText(text,label){
@@ -823,7 +920,7 @@ function replySection(i){
     <textarea id="reply-${i.id}" data-reply="${i.id}" ${approved?'readonly':''}>${esc(i.reply)}</textarea>
     <div class="helper"><span id="reply-state">${i.replyState==='edited'?'Edited by you':approved?'Approved':'Suggested draft'}</span><span id="reply-count" class="mono">${i.reply.length} chars</span></div>
     <div id="ph-warn">${ph&&!approved?`<div class="notice warn">Fill in or delete the [bracketed] parts before approving. They mark facts the draft can't know.</div>`:''}</div>
-    ${approved?`<div class="notice ok">Approved by Amy at ${fmtTime(i.approvedAt)}. <b>Not posted.</b> Copy it and post it yourself in ${PLAT[i.platform].name}.</div>`:''}
+    ${approved?`<div class="notice ok">Approved by ${esc(emailOf(i.approvedBy))} at ${fmtTime(i.approvedAt).replace(/\.$/,"")}. <b>Not posted.</b> Copy it and post it yourself in ${PLAT[i.platform].name}.</div>`:''}
     <div class="btn-row">
       ${approved?`<button class="btn sm primary" data-act="copy-reply" data-id="${i.id}">Copy reply</button><button class="btn sm" data-act="unapprove" data-id="${i.id}">Edit again</button>`
       :`<button class="btn sm primary" id="approve-btn" data-act="approve" data-id="${i.id}" ${ph?'disabled':''}>Approve reply</button><button class="btn sm" data-act="copy-reply" data-id="${i.id}">Copy</button><button class="btn sm ghost" data-act="regen" data-id="${i.id}">Restore suggestion</button>`}
@@ -897,7 +994,7 @@ function renderModeration(){
 /* ---------- Digest ---------- */
 function buildDigest(){
   const now=simNow();
-  const inWin=S.items.filter(i=>i.ts>=WINDOW_START);
+  const inWin=S.items.filter(i=>i.ts>=windowStart());
   const cnt=p=>inWin.filter(i=>i.platform===p).length;
   const urgent=inWin.filter(i=>i.priority==='urgent'&&isOpen(i)&&!(i.flags.length));
   const needs=inWin.filter(i=>i.priority==='needs'&&isOpen(i));
@@ -915,7 +1012,7 @@ function buildDigest(){
     (urgent.length?`${urgent.length} urgent ${urgent.length===1?'item needs':'items need'} you first${top?`, starting with ${top.sender}`:''}. `:'Nothing urgent is open. ')+
     `${needs.length} ${needs.length===1?'needs':'need'} a reply and ${modQ.length} ${modQ.length===1?'comment is':'comments are'} waiting in moderation.`;
   digestHTML=`
-    <dl class="e-head"><dt>From</dt><dd>Volta Command Centre (prototype)</dd><dt>To</dt><dd>Amy</dd><dt>Subject</dt><dd><b>Your 1:00 p.m. social digest · ${urgent.length} urgent, ${needs.length} to reply</b></dd><dt>Covers</dt><dd>${fmtFull(WINDOW_START)} to ${fmtFull(now)}</dd></dl>
+    <dl class="e-head"><dt>From</dt><dd>Volta Command Centre (prototype)</dd><dt>To</dt><dd>Amy</dd><dt>Subject</dt><dd><b>Your 1:00 p.m. social digest · ${urgent.length} urgent, ${needs.length} to reply</b></dd><dt>Covers</dt><dd>${fmtFull(windowStart())} to ${fmtFull(now)}</dd></dl>
     <div class="e-body">
       <div><h2>Good afternoon, Amy.</h2><p class="e-lede">${esc(lede)}</p></div>
       ${sec('Do first','<span class="pill urgent">'+urgent.length+'</span>',urgent,i=>line(i),'No open urgent items. Nice work.')}
@@ -927,7 +1024,7 @@ function buildDigest(){
       <section class="e-sec"><h3>Already handled</h3><p class="e-none" style="padding:0">${reviewed} reviewed · ${fu.length} marked for follow-up · ${approvedR} ${approvedR===1?'reply':'replies'} approved and waiting for you to post</p></section>
       <p class="e-none" style="padding:0;font-size:12px">Built from fictional sample data by keyword rules. Nothing was sent.</p>
     </div>`;
-  digestText=[`YOUR 1:00 P.M. SOCIAL DIGEST (prototype, fictional data)`,`Covers ${fmtFull(WINDOW_START)} to ${fmtFull(now)}`,``,lede,``,
+  digestText=[`YOUR 1:00 P.M. SOCIAL DIGEST (prototype, fictional data)`,`Covers ${fmtFull(windowStart())} to ${fmtFull(now)}`,``,lede,``,
     `DO FIRST (${urgent.length})`,...urgent.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
     `MODERATION QUEUE (${modQ.length})`,...modQ.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${i.flags.map(f=>f.label).join(', ')}`),``,
     `REPLY WHEN YOU CAN (${needs.length})`,...needs.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
@@ -935,7 +1032,7 @@ function buildDigest(){
     `Handled: ${reviewed} reviewed, ${fu.length} follow-up, ${approvedR} replies approved (not posted).`].join('\n');
   lastGenAt=now;
 }
-function renderDigest(){ $('#digest').innerHTML=digestHTML; $('#gen-meta').textContent=`Generation #${S.digestCount||1} at ${fmtTime(lastGenAt)} (simulated clock)`; }
+function renderDigest(){ $('#digest').innerHTML=digestHTML; $('#gen-meta').textContent=`Generation #${S.digestCount||1} at ${fmtTime(lastGenAt)} (Atlantic time)`; }
 
 /* ---------- Sidebar ---------- */
 function renderSide(){
@@ -945,16 +1042,17 @@ function renderSide(){
   $('#plat-list').innerHTML=['linkedin','facebook','instagram'].map(p=>`<button data-act="plat" data-p="${p}">${pbadge(p,1)}<span>${PLAT[p].name}</span><span class="count">${S.items.filter(i=>i.platform===p&&isOpen(i)).length} open</span></button>`).join('');
   const sim=$('#sim-new'); sim.disabled=S.extraUsed>=EXTRA.length; sim.textContent=S.extraUsed>=EXTRA.length?'No more sample arrivals':'+ Simulate new interaction';
 }
-function renderAll(){ renderSide(); renderMetrics(); renderTypeOptions(); renderList(); renderDetail(); renderModeration(); }
+function renderAll(){ renderSide(); renderMetrics(); renderTypeOptions(); renderList(); renderDetail(); renderModeration(); renderConnections(); }
 
 /* ---------- Views ---------- */
-const VIEWS=['inbox','moderation','digest','about'];
+const VIEWS=['inbox','moderation','digest','accounts','about'];
 function setView(v){
   if(!VIEWS.includes(v)) v='inbox';
   view=v;
   VIEWS.forEach(x=>{ $('#view-'+x).hidden=x!==v; });
   document.querySelectorAll('#nav a').forEach(a=>a.setAttribute('aria-current',a.dataset.view===v?'page':'false'));
-  if(v==='digest'){ S.seenDigest=true; $('#c-digest').hidden=true; renderDigest(); save(); }
+  if(v==='digest'){ $('#c-digest').hidden=true; renderDigest(); }
+  if(v==='accounts') renderConnections();
   if(v!=='inbox') document.body.classList.remove('sheet');
   window.scrollTo(0,0);
 }
@@ -986,33 +1084,49 @@ document.addEventListener('click',e=>{
       log(i,s==='reviewed'?'Marked reviewed':s==='followup'?'Marked for follow-up':'Reopened');
       if(s==='new' && i.mod && i.mod!=='pending'){ i.mod='pending'; log(i,'Moderation decision cleared'); }
       if(s==='reviewed' && i.mod==='pending'){ i.mod='kept'; log(i,'Moderation: Kept visible'); }
-      save(); renderAll(); toast(s==='reviewed'?'Marked reviewed':s==='followup'?'Marked for follow-up':'Reopened'); break; }
-    case 'tone': i.variant=+b.dataset.v; i.reply=draft(i,i.variant); i.replyState='draft'; save(); renderDetail(); break;
-    case 'regen': i.reply=draft(i,i.variant); i.replyState='draft'; save(); renderDetail(); toast('Suggested draft restored'); break;
-    case 'write-anyway': i.intent='thanks'; i.reply=draft(i,0); i.replyState='draft'; save(); renderDetail(); break;
+      save(i); renderAll(); toast(s==='reviewed'?'Marked reviewed':s==='followup'?'Marked for follow-up':'Reopened'); break; }
+    case 'tone': i.variant=+b.dataset.v; i.reply=draft(i,i.variant); i.replyState='draft'; saveDraft(i); renderDetail(); break;
+    case 'regen': i.reply=draft(i,i.variant); i.replyState='draft'; saveDraft(i); renderDetail(); toast('Suggested draft restored'); break;
+    case 'write-anyway': i.intent='thanks'; i.reply=draft(i,0); i.replyState='draft'; save(i); saveDraft(i); renderDetail(); break;
     case 'approve':
       if(hasPlaceholder(i.reply)){ toast('Fill in the [bracketed] parts first'); break; }
-      i.replyState='approved'; i.approvedAt=simNow(); log(i,'Reply approved by Amy (not posted)'); save(); renderDetail(); renderList(); toast('Reply approved. Nothing was posted.'); break;
-    case 'unapprove': i.replyState='edited'; log(i,'Approval withdrawn for editing'); save(); renderDetail(); break;
+      i.replyState='approved'; i.approvedAt=simNow(); i.approvedBy=me.id; log(i,'Reply approved (not posted)'); saveDraft(i); renderDetail(); renderList(); toast('Reply approved. Nothing was posted.'); break;
+    case 'unapprove': i.replyState='edited'; log(i,'Approval withdrawn for editing'); saveDraft(i); renderDetail(); break;
     case 'copy-reply': copyText(i.reply,'Reply copied. Paste it in '+PLAT[i.platform].name+' yourself.'); break;
     case 'reveal': revealed.has(id)?revealed.delete(id):revealed.add(id); renderList(); renderDetail(); renderModeration(); break;
     case 'mod': {
       const d=b.dataset.d; i.mod=d; i.status=d==='kept'?'reviewed':'followup';
       log(i,'Moderation: '+DEC[d]+(d==='hide'?' (action needed in '+PLAT[i.platform].name+')':''));
-      save(); renderAll(); toast(DEC[d]+'. Nothing was changed on '+PLAT[i.platform].name+'.'); break; }
-    case 'mod-undo': i.mod='pending'; i.status='new'; log(i,'Moderation decision undone'); save(); renderAll(); break;
+      save(i); renderAll(); toast(DEC[d]+'. Nothing was changed on '+PLAT[i.platform].name+'.'); break; }
+    case 'mod-undo': i.mod='pending'; i.status='new'; log(i,'Moderation decision undone'); save(i); renderAll(); break;
     case 'open': go('inbox'); Object.assign(F,{q:'',platform:'',priority:'',type:'',status:''}); syncFilterInputs(); renderMetrics(); select(id); setTimeout(()=>{ const r=document.querySelector(`.row[data-id="${id}"]`); r&&r.scrollIntoView({block:'center'}); },30); break;
     case 'goto': go(b.dataset.view); break;
-    case 'gen-digest': S.digestCount=(S.digestCount||0)+1; buildDigest(); renderDigest(); save(); const d=$('#digest'); d.classList.remove('flash'); void d.offsetWidth; d.classList.add('flash'); toast('Digest regenerated from current data'); break;
+    case 'gen-digest': S.digestCount=(S.digestCount||0)+1; buildDigest(); renderDigest(); saveDigest(); const d=$('#digest'); d.classList.remove('flash'); void d.offsetWidth; d.classList.add('flash'); toast('Digest regenerated from current data'); break;
     case 'copy-digest': copyText(digestText,'Digest copied as plain text'); break;
     case 'simulate': {
       if(S.extraUsed>=EXTRA.length) break;
-      const it=prep(EXTRA[S.extraUsed],0); S.extraUsed++; S.items.unshift(it); save(); renderAll();
-      toast(`New sample ${it.type.toLowerCase()} on ${PLAT[it.platform].name}: classified ${PRI[it.priority]}`); break; }
+      const row=toRow(EXTRA[S.extraUsed],0);
+      sb.from('interactions').upsert(row,{onConflict:'platform,external_id',ignoreDuplicates:true}).then(async({error})=>{
+        if(error) return fail(error);
+        await refresh(true);
+        toast(`New sample ${row.type.toLowerCase()} on ${PLAT[row.platform].name}: classified ${PRI[row.priority]}`);
+      });
+      break; }
     case 'reset':
       if(!resetArmed){ resetArmed=true; b.textContent='Click again to reset'; b.classList.add('danger'); clearTimeout(resetT); resetT=setTimeout(()=>{ resetArmed=false; b.textContent='Reset demo'; b.classList.remove('danger'); },3500); break; }
       resetArmed=false; b.textContent='Reset demo'; b.classList.remove('danger');
-      S=fresh(); selected=null; revealed.clear(); save(); buildDigest(); renderAll(); renderDigest(); $('#c-digest').hidden=true; toast('Demo reset to the original sample data'); break;
+      if(!me||me.role!=='admin'){ toast('Only an admin can reset the sample data'); break; }
+      // Removes fictional sample rows only. Real platform data can never be deleted from the browser.
+      sb.from('interactions').delete().eq('is_demo',true).then(async({error})=>{
+        if(error) return fail(error);
+        try{ await seedDemo(); }catch(e){ return fail(e); }
+        selected=null; revealed.clear(); await refresh(true); $('#c-digest').hidden=true; toast('Sample data reset for the whole team');
+      });
+      break;
+    case 'connect': {
+      const p=b.dataset.p;
+      toast(PLAT[p].name+' connection opens once Volta’s '+(p==='linkedin'?'LinkedIn':'Meta')+' developer setup is finished');
+      break; }
   }
 });
 document.addEventListener('input',e=>{
@@ -1023,7 +1137,7 @@ document.addEventListener('input',e=>{
     $('#reply-count').textContent=t.value.length+' chars'; $('#reply-state').textContent='Edited by you';
     const ab=$('#approve-btn'); if(ab) ab.disabled=ph||!t.value.trim();
     $('#ph-warn').innerHTML=ph?`<div class="notice warn">Fill in or delete the [bracketed] parts before approving. They mark facts the draft can't know.</div>`:'';
-    clearTimeout(t._s); t._s=setTimeout(save,300); return;
+    clearTimeout(t._s); t._s=setTimeout(()=>saveDraft(i),600); return;
   }
   if(t.id==='f-q'){ F.q=t.value; renderMetrics(); renderList(); }
 });
@@ -1033,26 +1147,83 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.body.classList.remove('sheet'); });
 
-/* ---------- Simulated clock ---------- */
-let digestNotified=false;
+/* ---------- Clock (real Atlantic time) ---------- */
+let digestNotified=Date.now()>=digestAt();
 function tick(){
   const n=simNow();
   $('#clock').textContent=new Date(n).toLocaleDateString('en-CA',{timeZone:TZ,weekday:'short',month:'short',day:'numeric'})+' · '+fmtTime(n);
-  if(!digestNotified && n>=DIGEST_AT){
+  if(started && !digestNotified && n>=digestAt()){
     digestNotified=true; S.digestCount=(S.digestCount||0)+1; buildDigest(); if(view==='digest') renderDigest(); else $('#c-digest').hidden=false;
-    toast('1:00 p.m. digest is ready (simulated, nothing was emailed)'); save();
+    toast('1:00 p.m. digest is ready in the dashboard. Nothing was emailed.');
   }
 }
-setInterval(()=>{ tick(); if(view==='inbox'){ /* refresh relative times quietly */ } },15000);
 
-/* ---------- Boot ---------- */
-if(!S.digestCount) S.digestCount=1;
-buildDigest();
-renderAll();
+/* ---------- Shared data: load, refresh, save digests ---------- */
+function saveDigest(){
+  if(!sb||!me) return;
+  sb.from('digests').insert({generated_by:me.id,window_start:new Date(windowStart()).toISOString(),window_end:new Date().toISOString(),summary_text:digestText})
+    .then(({error})=>{ if(error) fail(error); });
+}
+function editingNow(){ const a=document.activeElement; return a&&(a.tagName==='TEXTAREA'||(a.tagName==='INPUT'&&a.id!=='f-q')); }
+async function refresh(force){
+  if(!started) return;
+  if(!force&&(editingNow()||document.hidden)) return;
+  try{ await loadAll(); }catch(e){ console.error(e); if(force) toast('Couldn’t load the latest data. Check your connection and refresh.'); return; }
+  if(selected&&!byId(selected)) selected=null;
+  buildDigest(); renderAll(); if(view==='digest') renderDigest();
+}
+setInterval(()=>{ tick(); },15000);
+setInterval(()=>{ refresh(false); },60000);
+window.addEventListener('focus',()=>refresh(false));
+
+/* ---------- Connected accounts ---------- */
+const CONN_NAMES={facebook:'Facebook Page',instagram:'Instagram',linkedin:'LinkedIn Page'};
+function renderConnections(){
+  const el=$('#conn-list'); if(!el) return;
+  const admin=me&&me.role==='admin';
+  el.innerHTML=['facebook','instagram','linkedin'].map(p=>{
+    const c=(S.conns||[]).find(x=>x.platform===p)||{status:'not_connected'};
+    let cls='', msg, btn='';
+    if(c.status==='connected'){ cls='ok'; msg=`Connected to ${esc(c.account_name||'Volta')}${c.connected_by_email?' by '+esc(c.connected_by_email):''}.`; }
+    else if(c.status==='needs_reconnect'){ cls='warn'; msg='The connection expired. Click Reconnect and approve again.'; }
+    else if(c.status==='error'){ cls='warn'; msg=esc(c.last_error||'Something went wrong with this connection. Try reconnecting.'); }
+    else { msg=p==='instagram'?'Connects together with Facebook. Setup in progress.':'Not connected yet. Setup in progress.'; }
+    if(admin) btn=`<button class="btn sm${c.status==='connected'?'':' primary'}" data-act="connect" data-p="${p}">${c.status==='connected'?'Disconnect':c.status==='not_connected'?'Connect '+PLAT[p].name:'Reconnect'}</button>`;
+    else btn='<span style="font-size:12px;color:var(--fg-3)">An admin can connect this</span>';
+    return `<div class="conn ${cls}">${pbadge(p)}<div class="meta"><b>${CONN_NAMES[p]}</b><span>${msg}</span></div>${btn}</div>`;
+  }).join('');
+}
+
+/* ---------- Boot (after sign-in) ---------- */
+function showLoading(){ $('#list').innerHTML='<div class="loading">Loading your team’s inbox…</div>'; }
+async function start(session){
+  if(started&&me&&me.id===session.user.id) return;
+  sb=window.voltaAuth; if(!sb) return;
+  started=true; me={id:session.user.id,email:session.user.email,role:'member'};
+  showLoading();
+  try{
+    const {data:tm}=await sb.from('team_members').select('role').eq('user_id',me.id).maybeSingle();
+    if(tm&&tm.role) me.role=tm.role;
+    await loadAll();
+    if(!S.items.length){ await seedDemo(); await loadAll(); }
+  }catch(e){
+    console.error(e);
+    $('#list').innerHTML='<div class="empty"><strong>Couldn’t load the inbox</strong>Check your connection, then refresh the page.</div>';
+    return;
+  }
+  $('#reset').hidden=me.role!=='admin';
+  if(!S.digestCount) S.digestCount=1;
+  buildDigest(); renderAll(); syncFilterInputs();
+  if(window.matchMedia('(min-width:1180px)').matches){ const first=filtered()[0]; if(first){ selected=first.id; renderList(); renderDetail(); } }
+  setView(location.hash.slice(1)||'inbox');
+}
+function stop(){ started=false; loaded=false; me=null; S={items:[],extraUsed:0,digestCount:0,conns:[]}; selected=null; revealed.clear(); }
+window.addEventListener('volta:auth',e=>{ if(e.detail) start(e.detail); else stop(); });
+showLoading();
 syncFilterInputs();
-if(window.matchMedia('(min-width:1180px)').matches){ const first=filtered()[0]; if(first){ selected=first.id; renderList(); renderDetail(); } }
 setView(location.hash.slice(1)||'inbox');
 tick();
+if(window.voltaSession) start(window.voltaSession);
 })();
 </script>
 
