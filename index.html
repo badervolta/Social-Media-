@@ -357,17 +357,14 @@ body.locked #auth-gate{display:grid}
 <header class="topbar">
   <div class="topbar-in">
     <div class="brand"><b>Volta</b><span>Social Media Command Centre</span></div>
-    <span class="proto" title="Fictional sample data. Nothing is connected, sent or posted.">Prototype · fictional data</span>
     <div class="top-right">
-      <div class="clock" title="Simulated clock. It starts at 12:58 p.m. each time the page loads."><span class="dot" aria-hidden="true"></span><span id="clock" class="mono">Thu, Nov 5 · 12:58 p.m.</span><span>Atlantic time</span></div>
-      <button class="btn sm" id="sim-new" data-act="simulate">+ Simulate new interaction</button>
-      <button class="btn sm ghost" id="reset" data-act="reset">Reset demo</button>
+      <div class="clock" title="Current time in Halifax"><span class="dot" aria-hidden="true"></span><span id="clock" class="mono">Thu, Nov 5 · 12:58 p.m.</span><span>Atlantic time</span></div>
       <span class="user-chip" id="user-email" title="Signed in"></span>
       <button class="btn sm" id="sign-out" type="button">Sign out</button>
     </div>
   </div>
 </header>
-<div class="banner"><strong>Sample data.</strong> All people, organizations and messages are fictional until Volta's accounts are connected. Changes are saved and shared with your team. Nothing is connected to LinkedIn, Facebook or Instagram, and nothing is ever sent, posted, hidden or deleted. Classification uses simple keyword rules, not AI.</div>
+<div class="banner" id="banner" hidden></div>
 
 <div class="shell">
   <aside class="side" aria-label="Main navigation">
@@ -376,13 +373,13 @@ body.locked #auth-gate{display:grid}
       <a href="#moderation" data-view="moderation"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 1.8l5.2 2v4c0 3-2.2 5.3-5.2 6.4C5 13.1 2.8 10.8 2.8 7.8v-4z"/><path d="M8 5v3.4M8 10.6v.1"/></svg>Moderation<span class="count" id="c-mod">0</span></a>
       <a href="#digest" data-view="digest"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.4 1.5"/></svg>1:00 p.m. digest<span class="count" id="c-digest" hidden>new</span></a>
       <a href="#accounts" data-view="accounts"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6.5 9.5l3-3"/><path d="M7.2 4.6l1.1-1.1a2.6 2.6 0 0 1 3.7 3.7l-1.1 1.1"/><path d="M8.8 11.4l-1.1 1.1a2.6 2.6 0 0 1-3.7-3.7l1.1-1.1"/></svg>Connected accounts</a>
-      <a href="#about" data-view="about"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7.2V11M8 5v.1"/></svg>About this prototype</a>
+      <a href="#about" data-view="about"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7.2V11M8 5v.1"/></svg>How it works</a>
     </nav>
     <div class="side-block">
       <div class="side-label">Accounts</div>
       <div class="plat-list" id="plat-list"></div>
     </div>
-    <p class="side-note">Signed in as Amy (communications and operations). Sample session, no real login.</p>
+    <p class="side-note">Every action you take is saved for the team and recorded under your name.</p>
   </aside>
 
   <main>
@@ -439,7 +436,7 @@ body.locked #auth-gate{display:grid}
         <div>
           <div class="eyebrow">Daily summary · 1:00 p.m.</div>
           <h1 id="h-digest">Digest preview</h1>
-          <p>A once-a-day summary of everything since yesterday at 1:00 p.m. It is built from the sample data and the decisions you make in this prototype.</p>
+          <p>A once-a-day summary of everything since yesterday at 1:00 p.m. It's built from your team's inbox and the decisions you make here.</p>
         </div>
         <div class="actions">
           <button class="btn" data-act="copy-digest">Copy as text</button>
@@ -449,14 +446,14 @@ body.locked #auth-gate{display:grid}
       <div class="digest-wrap">
         <article class="email" id="digest"></article>
         <aside class="panel">
-          <h3>Delivery (simulated)</h3>
+          <h3>Delivery</h3>
           <dl class="sched">
             <dt>Time</dt><dd>Weekdays, 1:00 p.m. Atlantic</dd>
             <dt>To</dt><dd>Amy, communications lead</dd>
             <dt>Covers</dt><dd>Since 1:00 p.m. the previous day</dd>
             <dt>Status</dt><dd><span class="sim">Not scheduled</span></dd>
           </dl>
-          <p>This prototype does not send email or run on a schedule. While the dashboard is open, it shows a notice at 1:00 p.m. Atlantic time. Each generated digest is saved for the team. Scheduled email delivery comes in a later phase.</p>
+          <p>Email delivery isn't set up yet. While the dashboard is open, it shows a notice at 1:00 p.m. Atlantic time, and each digest you generate is saved for the team.</p>
           <p id="gen-meta" class="mono" style="font-size:12px;color:var(--fg-3)"></p>
         </aside>
       </div>
@@ -487,23 +484,23 @@ body.locked #auth-gate{display:grid}
     <section id="view-about" hidden aria-labelledby="h-about">
       <div class="view-head">
         <div>
-          <div class="eyebrow">Read me</div>
-          <h1 id="h-about">About this prototype</h1>
-          <p>What works, what is pretend, and the assumptions behind the sample data.</p>
+          <div class="eyebrow">Help</div>
+          <h1 id="h-about">How it works</h1>
+          <p>What works today, and what's still being set up.</p>
         </div>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Feature</th><th>In this prototype</th><th>How</th></tr></thead>
+          <thead><tr><th>Feature</th><th>Today</th><th>How</th></tr></thead>
           <tbody>
-            <tr><td>Unified feed, filters, search, sorting</td><td class="yes">Works</td><td>Loads from Volta's secure database. Still fictional sample data until accounts are connected.</td></tr>
-            <tr><td>Mark reviewed, follow-up, reopen</td><td class="yes">Works</td><td>Saved for the whole team, with who did what in each item's history. Admins can reset the sample data.</td></tr>
-            <tr><td>Priority classification and the "why"</td><td class="sim">Simulated</td><td>Keyword rules, shown openly on every item. Not AI. Some items will be misjudged, which is useful for testing.</td></tr>
-            <tr><td>Suggested replies</td><td class="sim">Simulated</td><td>Pre-written Volta-voice templates chosen by the matching rule. Editable. Facts you must check appear in [brackets] and block approval.</td></tr>
+            <tr><td>Unified feed, filters, search, sorting</td><td class="yes">Works</td><td>Loads from Volta's secure database. Activity appears once Volta's accounts are connected.</td></tr>
+            <tr><td>Mark reviewed, follow-up, reopen</td><td class="yes">Works</td><td>Saved for the whole team, with who did what in each item's history.</td></tr>
+            <tr><td>Priority classification and the "why"</td><td class="sim">Keyword rules</td><td>Simple keyword rules, shown openly on every item. Not AI yet. Some items will be misjudged, so always check.</td></tr>
+            <tr><td>Suggested replies</td><td class="sim">Templates</td><td>Pre-written Volta-voice templates chosen by the matching rule. Editable. Facts you must check appear in [brackets] and block approval.</td></tr>
             <tr><td>Approve reply</td><td class="yes">Works</td><td>Records who approved it and when. Never posts. You copy it and post it yourself.</td></tr>
-            <tr><td>Moderation decisions</td><td class="sim">Simulated</td><td>Records your decision. Never hides, deletes or blocks anything.</td></tr>
-            <tr><td>1:00 p.m. digest</td><td class="yes">Summary works</td><td>"Generate digest" rebuilds it from current data. Delivery and scheduling are not real.</td></tr>
-            <tr><td>New activity arriving</td><td class="sim">Simulated</td><td>"Simulate new interaction" adds one of three extra sample items for everyone. Real platforms connect in the next phase.</td></tr>
+            <tr><td>Moderation decisions</td><td class="yes">Works</td><td>Records your decision. Never hides, deletes or blocks anything. You act in the platform yourself.</td></tr>
+            <tr><td>1:00 p.m. digest</td><td class="yes">Summary works</td><td>"Generate digest" builds it from current data. Email delivery and scheduling aren't set up yet.</td></tr>
+            <tr><td>New activity arriving</td><td class="sim">Not connected yet</td><td>Starts once Facebook, Instagram and LinkedIn are connected. Nothing is synced today.</td></tr>
             <tr><td>Connected accounts</td><td class="sim">Setup in progress</td><td>The page is ready. Connecting opens once Volta's Meta and LinkedIn developer setup is finished.</td></tr>
           </tbody>
         </table>
@@ -513,7 +510,7 @@ body.locked #auth-gate{display:grid}
           <h3>Assumptions</h3>
           <ul>
             <li>One company account per platform: a LinkedIn page, a Facebook page and an Instagram business profile.</li>
-            <li>Amy is the only reviewer. A real tool might add a second approver.</li>
+            <li>Any invited team member can review and approve. Admins manage connected accounts.</li>
             <li>Volta's time zone is Atlantic (AST). The digest window is 1:00 p.m. to 1:00 p.m.</li>
             <li>Urgent means media requests, billing problems, stated deadlines and possible inappropriate content.</li>
             <li>The voice is warm, short and plain, with Canadian spelling and a personal sign-off.</li>
@@ -642,40 +639,8 @@ const PLAT={
 const PRI={urgent:'Urgent',needs:'Needs response',info:'Informational'};
 const STATUS={new:'New',followup:'Follow-up',reviewed:'Reviewed'};
 
-/* ---------- Fictional sample data ---------- */
-const SEED=[
- {id:'i01',platform:'linkedin',type:'Direct message',sender:'Priya Raman',meta:'Producer, Coastal Morning Radio (fictional)',mins:14,content:"Hi Volta team, I'm producing a segment on Atlantic Canadian startups for tomorrow's show. Is someone available for a 10-minute phone interview before 4 p.m. today? Sorry for the short notice."},
- {id:'i02',platform:'facebook',type:'Direct message',sender:'Linda Okafor',mins:41,content:"Hi, I was charged twice for my coworking day pass on Monday. Can someone help me get a refund for the extra charge?"},
- {id:'i03',platform:'instagram',type:'Comment',sender:'@jordy.builds',ctx:'On post: Winter cohort announcement',mins:52,content:"This place is a scam, they take your money and give you nothing. f*** this."},
- {id:'i04',platform:'linkedin',type:'Direct message',sender:'Andrew Chen',meta:'Program Officer, Maritime Growth Fund (fictional)',mins:96,status:'followup',content:"Following up on last week's note. Could you send the Q3 program impact numbers by Friday? Our board meets Monday."},
- {id:'i05',platform:'instagram',type:'Direct message',sender:'@saltwatercoffee.co',meta:'Local café (fictional)',mins:120,content:"Hey! We'd love to sponsor coffee for your next founder event. Who's the best person to talk to about a partnership?"},
- {id:'i06',platform:'facebook',type:'Comment',sender:'Marcus Bell',ctx:'On event: Founders Pitch Night, Nov 12',mins:135,content:"Is Pitch Night still happening on the 12th? The registration page says sold out but my friend got a ticket yesterday."},
- {id:'i07',platform:'linkedin',type:'Comment',sender:'Sam Whitaker',ctx:"On post: We're hiring a Program Coordinator",mins:160,content:"Is the Program Coordinator role open to remote applicants, or is it in-person only?"},
- {id:'i08',platform:'instagram',type:'Tag',sender:'@techwomen.atlantic',meta:'Community group (fictional)',ctx:'Tagged Volta in a photo',mins:190,content:"Packed room at Volta for this morning's breakfast workshop. Thank you for hosting us!"},
- {id:'i09',platform:'facebook',type:'Comment',sender:'Grow Fast Media',ctx:'On post: Pitch Night tickets',mins:205,content:"Want 10K followers FAST?? Click here for free followers 👉 bit.ly/grw-fst"},
- {id:'i10',platform:'instagram',type:'Comment',sender:'@maria.k.design',ctx:'On post: Winter cohort announcement',mins:240,content:"When do applications for the winter cohort close? I'm finishing my prototype this month."},
- {id:'i11',platform:'linkedin',type:'Mention',sender:'Elena Fournier',meta:'CEO, Tidewater Analytics (fictional)',mins:275,content:"Huge thanks to Volta for the mentorship this fall. We just closed our pre-seed round and couldn't have done it without this community."},
- {id:'i12',platform:'facebook',type:'Comment',sender:'Tom Hadley',ctx:'On event: Climate Tech Panel',mins:320,content:"Parking was terrible last night. I circled for 20 minutes and missed the start of the panel."},
- {id:'i13',platform:'instagram',type:'Comment',sender:'@kev_in_hfx',ctx:'On reel: Meet the winter cohort',mins:355,content:"You people are idiots and so is everyone who works there."},
- {id:'i14',platform:'linkedin',type:'Comment',sender:'Rachel Kim',ctx:'On event: Climate Tech Panel',mins:410,content:"Will the panel recording be posted anywhere? I missed the live session."},
- {id:'i15',platform:'facebook',type:'Comment',sender:'Dana Lee',ctx:'On event: Founders Pitch Night, Nov 12',mins:470,content:"Can someone call me about volunteering at the event? My cell is 902-555-0148."},
- {id:'i16',platform:'instagram',type:'Direct message',sender:'@founder.ola',meta:'Student founder',mins:530,content:"Hi! I'm a student founder working on a campus food app. Do you offer free office hours for students?"},
- {id:'i17',platform:'linkedin',type:'Direct message',sender:'Mei Tanaka',mins:610,content:"Hello, I'd like to attend Pitch Night. Is there a step-free entrance? I use a wheelchair."},
- {id:'i18',platform:'linkedin',type:'Mention',sender:'Atlantic Tech Weekly',meta:'Newsletter (fictional)',mins:690,content:"This week's roundup: Volta named one of the region's most active startup communities."},
- {id:'i19',platform:'instagram',type:'Story mention',sender:'@nova.robotics',meta:'Startup (fictional)',mins:760,content:"Shared a story from the demo day stage and mentioned @volta."},
- {id:'i20',platform:'facebook',type:'Recommendation',sender:'Jess Morin',mins:840,status:'reviewed',content:"Recommends Volta. Great community and genuinely helpful staff. The coworking space is always welcoming."},
- {id:'i21',platform:'linkedin',type:'Share',sender:'Dev Patel',ctx:'Reshared: Winter cohort applications are open',mins:905,status:'reviewed',content:"Founders in Atlantic Canada, this is worth a look. Applications are open now."},
- {id:'i22',platform:'instagram',type:'Comment',sender:'@lukas.ventures',ctx:'On post: Fundraising 101 workshop recap',mins:980,content:"Could you share the slide deck from the fundraising workshop?"},
- {id:'i23',platform:'linkedin',type:'Comment',sender:'Karen Doyle',ctx:'On post: Meet the winter cohort',mins:1080,status:'reviewed',content:"Congratulations to all the founders in this cohort!"},
- {id:'i24',platform:'facebook',type:'Share',sender:'Atlantic Startup Meetup',meta:'Community group (fictional)',ctx:'Shared: Founders Pitch Night event',mins:1260,status:'reviewed',content:"A few of us will be at this one. Meet at the front door at 6:30."}
-];
-const EXTRA=[
- {id:'x01',platform:'linkedin',type:'Direct message',sender:'Hannah Brooks',meta:'Reporter, The Harbour Ledger (fictional)',content:"I'm writing about the new cohort for Friday's paper. Could I get a quote from your executive director?"},
- {id:'x02',platform:'facebook',type:'Comment',sender:'Owen Clarke',ctx:'On event: Founders Pitch Night, Nov 12',content:"Can I transfer my ticket to a coworker if I can't make it to the event?"},
- {id:'x03',platform:'instagram',type:'Mention',sender:'@eastcoast.vc',meta:'Investor (fictional)',content:"Proud to back two founders from the Volta cohort this week."}
-];
 
-/* ---------- Rule-based classifier (simulated, not AI) ---------- */
+/* ---------- Rule-based classifier (keyword rules; AI comes in a later phase) ---------- */
 const MOD=[
  {key:'abuse',label:'Abusive or insulting language',test:/\bf\*{2,}|\bidiots?\b|\bscam\b|\bstupid\b|\bmorons?\b/i},
  {key:'spam',label:'Spam or suspicious link',test:/free followers|bit\.ly|click here|giveaway/i},
@@ -750,17 +715,9 @@ function draft(it,variant){ const set=T[it.intent]||T.question; return set[varia
 const hasPlaceholder=s=>/\[[^\]]+\]/.test(s||'');
 
 /* ---------- State (shared with the team through Supabase) ---------- */
-let S={items:[],extraUsed:0,digestCount:0,conns:[]};
+let S={items:[],digestCount:0,conns:[]};
 let sb=null, me=null, started=false, loaded=false;
 
-// A fictional sample item, classified by the keyword rules, as a database row
-function toRow(raw,minsAgo){
-  const c=classify(raw);
-  return {platform:raw.platform,external_id:'demo-'+raw.id,type:raw.type,sender:raw.sender,sender_meta:raw.meta||null,
-    context:raw.ctx||null,content:raw.content,received_at:new Date(Date.now()-minsAgo*60000).toISOString(),
-    priority:c.priority,reason:c.reason,rule:c.rule,match:c.match||null,intent:c.intent,flags:c.flags,
-    status:raw.status||'new',moderation:c.flags.length?'pending':null,is_demo:true};
-}
 function fromRow(r,d,logs){
   const ts=Date.parse(r.received_at);
   return {id:r.id,ext:r.external_id,platform:r.platform,type:r.type,sender:r.sender,meta:r.sender_meta,ctx:r.context,
@@ -782,14 +739,9 @@ async function loadAll(){
   const dm={}; dr.data.forEach(d=>dm[d.interaction_id]=d);
   const lm={}; lr.data.forEach(l=>(lm[l.interaction_id]=lm[l.interaction_id]||[]).push(l));
   S.items=ir.data.map(r=>fromRow(r,dm[r.id],lm[r.id]||[]));
-  S.extraUsed=EXTRA.filter(x=>ir.data.some(r=>r.external_id==='demo-'+x.id)).length;
   S.conns=cr.data;
   S.team=tr.data;
   loaded=true;
-}
-async function seedDemo(){
-  const {error}=await sb.from('interactions').upsert(SEED.map(r=>toRow(r,r.mins)),{onConflict:'platform,external_id',ignoreDuplicates:true});
-  if(error) throw error;
 }
 const emailOf=id=>((S.team||[]).find(t=>t.user_id===id)||{}).email||'a teammate';
 function fail(e){ console.error(e); toast('Couldn’t save that change. Check your connection and refresh the page.'); }
@@ -885,6 +837,13 @@ function renderResultsLine(n){
 function renderList(){
   const list=filtered();
   renderResultsLine(list.length);
+  if(!S.items.length){
+    const connected=(S.conns||[]).some(c=>c.status==='connected');
+    $('#list').innerHTML=connected
+      ?`<div class="empty"><strong>You're all caught up</strong>New comments, messages and mentions will appear here as they arrive.</div>`
+      :`<div class="empty"><strong>Connect Volta's accounts to get started</strong>Comments, messages and mentions from Facebook, Instagram and LinkedIn will appear here once the accounts are connected.<div style="margin-top:12px"><button class="btn sm primary" data-act="goto" data-view="accounts">Go to Connected accounts</button></div></div>`;
+    return;
+  }
   if(!list.length){ $('#list').innerHTML=`<div class="empty"><strong>Nothing matches these filters</strong>Try removing a filter or clearing the search.<div style="margin-top:12px"><button class="btn sm" data-act="clear-all">Clear filters</button></div></div>`; return; }
   $('#list').innerHTML=list.map(i=>`
     <button class="row${i.status==='reviewed'?' done':''}" data-act="select" data-id="${i.id}" aria-current="${i.id===selected}">
@@ -946,7 +905,7 @@ function renderDetail(){
         <div>${pill(i)} ${i.status==='reviewed'?`<span class="pill ${i.priority}" style="margin-left:4px">Was: ${PRI[i.priority]}</span>`:''}</div>
         <p>${esc(i.reason)}</p>
         ${i.flags.length?`<div class="btn-row">${i.flags.map(f=>`<span class="tag flag">${esc(f.label)}</span>`).join('')}</div>`:''}
-        <span class="rule">Rule matched: <span class="mono">${esc(i.rule)}</span>${i.match?` on <span class="mono">${esc(hidden?'(hidden)':i.match)}</span>`:''} · simulated keyword rules, not AI</span>
+        <span class="rule">Rule matched: <span class="mono">${esc(i.rule)}</span>${i.match?` on <span class="mono">${esc(hidden?'(hidden)':i.match)}</span>`:''} · keyword rules, not AI</span>
       </div>
       <div class="btn-row">
         <button class="btn sm ok" data-act="status" data-s="reviewed" data-id="${i.id}" ${i.status==='reviewed'?'disabled':''}>Mark reviewed</button>
@@ -983,7 +942,7 @@ function renderModeration(){
           <button class="btn sm warn" data-act="mod" data-d="escalated" data-id="${i.id}">Escalate</button>
           <button class="btn sm ghost" data-act="open" data-id="${i.id}">Open in inbox</button>
         </div>`
-      :`<div class="notice ${i.mod==='kept'?'ok':i.mod==='hide'?'bad':'warn'}"><b>${DEC[i.mod]}</b>${i.mod==='hide'?`. Next step for you: open this comment in ${PLAT[i.platform].name} and hide or delete it there. This prototype cannot do it.`:i.mod==='escalated'?'. Waiting on your manager. Marked for follow-up.':'. Marked reviewed.'}</div>
+      :`<div class="notice ${i.mod==='kept'?'ok':i.mod==='hide'?'bad':'warn'}"><b>${DEC[i.mod]}</b>${i.mod==='hide'?`. Next step for you: open this comment in ${PLAT[i.platform].name} and hide or delete it there. The dashboard can't hide or delete comments.`:i.mod==='escalated'?'. Waiting on your manager. Marked for follow-up.':'. Marked reviewed.'}</div>
         <div class="btn-row"><button class="btn sm" data-act="mod-undo" data-id="${i.id}">Undo decision</button><button class="btn sm ghost" data-act="open" data-id="${i.id}">Open in inbox</button></div>`}
     </article>`;
   };
@@ -1012,7 +971,7 @@ function buildDigest(){
     (urgent.length?`${urgent.length} urgent ${urgent.length===1?'item needs':'items need'} you first${top?`, starting with ${top.sender}`:''}. `:'Nothing urgent is open. ')+
     `${needs.length} ${needs.length===1?'needs':'need'} a reply and ${modQ.length} ${modQ.length===1?'comment is':'comments are'} waiting in moderation.`;
   digestHTML=`
-    <dl class="e-head"><dt>From</dt><dd>Volta Command Centre (prototype)</dd><dt>To</dt><dd>Amy</dd><dt>Subject</dt><dd><b>Your 1:00 p.m. social digest · ${urgent.length} urgent, ${needs.length} to reply</b></dd><dt>Covers</dt><dd>${fmtFull(windowStart())} to ${fmtFull(now)}</dd></dl>
+    <dl class="e-head"><dt>From</dt><dd>Volta Command Centre</dd><dt>To</dt><dd>Amy</dd><dt>Subject</dt><dd><b>Your 1:00 p.m. social digest · ${urgent.length} urgent, ${needs.length} to reply</b></dd><dt>Covers</dt><dd>${fmtFull(windowStart())} to ${fmtFull(now)}</dd></dl>
     <div class="e-body">
       <div><h2>Good afternoon, Amy.</h2><p class="e-lede">${esc(lede)}</p></div>
       ${sec('Do first','<span class="pill urgent">'+urgent.length+'</span>',urgent,i=>line(i),'No open urgent items. Nice work.')}
@@ -1022,9 +981,9 @@ function buildDigest(){
       ${sec('Good news worth sharing','<span class="pill info">'+good.length+'</span>',good.slice(0,4),i=>line(i,'Consider resharing or thanking publicly.'),'No standout positive mentions yet today.')}
       <section class="e-sec"><h3>By platform</h3><div class="bars">${['linkedin','facebook','instagram'].map(p=>`<div class="bar"><span>${PLAT[p].name}</span><span class="track"><span class="fill" style="display:block;width:${cnt(p)/max*100}%;background:var(--${p==='linkedin'?'li':p==='facebook'?'fb':'ig'})"></span></span><span class="n">${cnt(p)}</span></div>`).join('')}</div></section>
       <section class="e-sec"><h3>Already handled</h3><p class="e-none" style="padding:0">${reviewed} reviewed · ${fu.length} marked for follow-up · ${approvedR} ${approvedR===1?'reply':'replies'} approved and waiting for you to post</p></section>
-      <p class="e-none" style="padding:0;font-size:12px">Built from fictional sample data by keyword rules. Nothing was sent.</p>
+      <p class="e-none" style="padding:0;font-size:12px">Prioritized by keyword rules. Nothing was sent.</p>
     </div>`;
-  digestText=[`YOUR 1:00 P.M. SOCIAL DIGEST (prototype, fictional data)`,`Covers ${fmtFull(windowStart())} to ${fmtFull(now)}`,``,lede,``,
+  digestText=[`YOUR 1:00 P.M. SOCIAL DIGEST`,`Covers ${fmtFull(windowStart())} to ${fmtFull(now)}`,``,lede,``,
     `DO FIRST (${urgent.length})`,...urgent.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
     `MODERATION QUEUE (${modQ.length})`,...modQ.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${i.flags.map(f=>f.label).join(', ')}`),``,
     `REPLY WHEN YOU CAN (${needs.length})`,...needs.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
@@ -1040,9 +999,14 @@ function renderSide(){
   const mp=S.items.filter(i=>i.mod==='pending').length;
   const cm=$('#c-mod'); cm.textContent=mp; cm.classList.toggle('hot',mp>0);
   $('#plat-list').innerHTML=['linkedin','facebook','instagram'].map(p=>`<button data-act="plat" data-p="${p}">${pbadge(p,1)}<span>${PLAT[p].name}</span><span class="count">${S.items.filter(i=>i.platform===p&&isOpen(i)).length} open</span></button>`).join('');
-  const sim=$('#sim-new'); sim.disabled=S.extraUsed>=EXTRA.length; sim.textContent=S.extraUsed>=EXTRA.length?'No more sample arrivals':'+ Simulate new interaction';
 }
-function renderAll(){ renderSide(); renderMetrics(); renderTypeOptions(); renderList(); renderDetail(); renderModeration(); renderConnections(); }
+function renderBanner(){
+  const el=$('#banner'); if(!el) return;
+  const any=(S.conns||[]).some(c=>c.status==='connected');
+  el.hidden=!loaded||any;
+  el.innerHTML='<strong>No social accounts connected yet.</strong> Activity will appear here once Volta\u2019s Facebook, Instagram and LinkedIn are connected. <a href="#accounts">Go to Connected accounts</a>. Nothing is ever posted without a person\u2019s approval.';
+}
+function renderAll(){ renderBanner(); renderSide(); renderMetrics(); renderTypeOptions(); renderList(); renderDetail(); renderModeration(); renderConnections(); }
 
 /* ---------- Views ---------- */
 const VIEWS=['inbox','moderation','digest','accounts','about'];
@@ -1063,7 +1027,6 @@ function select(id){ selected=id; renderList(); renderDetail(); if(narrow()) doc
 function syncFilterInputs(){ $('#f-q').value=F.q; $('#f-platform').value=F.platform; $('#f-priority').value=F.priority; $('#f-type').value=F.type; $('#f-status').value=F.status; $('#f-sort').value=F.sort; }
 
 /* ---------- Events ---------- */
-let resetArmed=false, resetT;
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b) return;
   const act=b.dataset.act, id=b.dataset.id, i=id&&byId(id);
@@ -1103,26 +1066,6 @@ document.addEventListener('click',e=>{
     case 'goto': go(b.dataset.view); break;
     case 'gen-digest': S.digestCount=(S.digestCount||0)+1; buildDigest(); renderDigest(); saveDigest(); const d=$('#digest'); d.classList.remove('flash'); void d.offsetWidth; d.classList.add('flash'); toast('Digest regenerated from current data'); break;
     case 'copy-digest': copyText(digestText,'Digest copied as plain text'); break;
-    case 'simulate': {
-      if(S.extraUsed>=EXTRA.length) break;
-      const row=toRow(EXTRA[S.extraUsed],0);
-      sb.from('interactions').upsert(row,{onConflict:'platform,external_id',ignoreDuplicates:true}).then(async({error})=>{
-        if(error) return fail(error);
-        await refresh(true);
-        toast(`New sample ${row.type.toLowerCase()} on ${PLAT[row.platform].name}: classified ${PRI[row.priority]}`);
-      });
-      break; }
-    case 'reset':
-      if(!resetArmed){ resetArmed=true; b.textContent='Click again to reset'; b.classList.add('danger'); clearTimeout(resetT); resetT=setTimeout(()=>{ resetArmed=false; b.textContent='Reset demo'; b.classList.remove('danger'); },3500); break; }
-      resetArmed=false; b.textContent='Reset demo'; b.classList.remove('danger');
-      if(!me||me.role!=='admin'){ toast('Only an admin can reset the sample data'); break; }
-      // Removes fictional sample rows only. Real platform data can never be deleted from the browser.
-      sb.from('interactions').delete().eq('is_demo',true).then(async({error})=>{
-        if(error) return fail(error);
-        try{ await seedDemo(); }catch(e){ return fail(e); }
-        selected=null; revealed.clear(); await refresh(true); $('#c-digest').hidden=true; toast('Sample data reset for the whole team');
-      });
-      break;
     case 'connect': {
       const p=b.dataset.p;
       toast(PLAT[p].name+' connection opens once Volta’s '+(p==='linkedin'?'LinkedIn':'Meta')+' developer setup is finished');
@@ -1205,19 +1148,17 @@ async function start(session){
     const {data:tm}=await sb.from('team_members').select('role').eq('user_id',me.id).maybeSingle();
     if(tm&&tm.role) me.role=tm.role;
     await loadAll();
-    if(!S.items.length){ await seedDemo(); await loadAll(); }
   }catch(e){
     console.error(e);
     $('#list').innerHTML='<div class="empty"><strong>Couldn’t load the inbox</strong>Check your connection, then refresh the page.</div>';
     return;
   }
-  $('#reset').hidden=me.role!=='admin';
   if(!S.digestCount) S.digestCount=1;
   buildDigest(); renderAll(); syncFilterInputs();
   if(window.matchMedia('(min-width:1180px)').matches){ const first=filtered()[0]; if(first){ selected=first.id; renderList(); renderDetail(); } }
   setView(location.hash.slice(1)||'inbox');
 }
-function stop(){ started=false; loaded=false; me=null; S={items:[],extraUsed:0,digestCount:0,conns:[]}; selected=null; revealed.clear(); }
+function stop(){ started=false; loaded=false; me=null; S={items:[],digestCount:0,conns:[]}; selected=null; revealed.clear(); }
 window.addEventListener('volta:auth',e=>{ if(e.detail) start(e.detail); else stop(); });
 showLoading();
 syncFilterInputs();
