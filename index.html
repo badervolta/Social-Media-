@@ -221,6 +221,11 @@ textarea{width:100%;min-height:150px;resize:vertical;border:1px solid var(--bord
 .mod-policy p{margin:0;color:var(--fg-2)}
 .subhead{font-size:15px;font-weight:800;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
 
+/* Digest time setting */
+.dg-edit{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.dg-edit select{padding:6px 8px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg);font-size:13px}
+#dg-time-change{margin-left:4px;padding:2px 8px}
+
 /* Spoken catch-up (podcast) */
 .pod{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 14px;align-items:center}
 .pod-icon{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
@@ -390,7 +395,7 @@ body.locked #auth-gate{display:grid}
     <nav class="nav" id="nav">
       <a href="#inbox" data-view="inbox"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9.5h3.2l1 1.8h3.6l1-1.8H14"/><path d="M3.6 3h8.8L14 9.5V13H2V9.5z"/></svg>Unified inbox<span class="count" id="c-inbox">0</span></a>
       <a href="#moderation" data-view="moderation"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 1.8l5.2 2v4c0 3-2.2 5.3-5.2 6.4C5 13.1 2.8 10.8 2.8 7.8v-4z"/><path d="M8 5v3.4M8 10.6v.1"/></svg>Moderation<span class="count" id="c-mod">0</span></a>
-      <a href="#digest" data-view="digest"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.4 1.5"/></svg>1:00 p.m. digest<span class="count" id="c-digest" hidden>new</span></a>
+      <a href="#digest" data-view="digest"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.4 1.5"/></svg><span><span class="dg-time">1:00 p.m.</span> digest</span><span class="count" id="c-digest" hidden>new</span></a>
       <a href="#accounts" data-view="accounts"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6.5 9.5l3-3"/><path d="M7.2 4.6l1.1-1.1a2.6 2.6 0 0 1 3.7 3.7l-1.1 1.1"/><path d="M8.8 11.4l-1.1 1.1a2.6 2.6 0 0 1-3.7-3.7l1.1-1.1"/></svg>Connected accounts</a>
       <a href="#about" data-view="about"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7.2V11M8 5v.1"/></svg>How it works</a>
     </nav>
@@ -453,9 +458,9 @@ body.locked #auth-gate{display:grid}
     <section id="view-digest" hidden aria-labelledby="h-digest">
       <div class="view-head">
         <div>
-          <div class="eyebrow">Daily summary · 1:00 p.m.</div>
+          <div class="eyebrow">Daily summary · <span class="dg-time">1:00 p.m.</span></div>
           <h1 id="h-digest">Digest preview</h1>
-          <p>A once-a-day summary of everything since yesterday at 1:00 p.m. It's built from your team's inbox and the decisions you make here.</p>
+          <p>A once-a-day summary of everything since <span class="dg-time">1:00 p.m.</span> yesterday. It's built from your team's inbox and the decisions you make here.</p>
         </div>
         <div class="actions">
           <button class="btn" data-act="copy-digest">Copy as text</button>
@@ -483,12 +488,13 @@ body.locked #auth-gate{display:grid}
         <aside class="panel">
           <h3>Delivery</h3>
           <dl class="sched">
-            <dt>Time</dt><dd>Weekdays, 1:00 p.m. Atlantic</dd>
+            <dt>Time</dt><dd><span id="dg-time-view">Every day, <span class="dg-time">1:00 p.m.</span> Atlantic</span> <button class="btn sm ghost" id="dg-time-change" data-act="edit-time" type="button" hidden>Change</button><span id="dg-time-edit" class="dg-edit" hidden><label><span class="sr">Digest time</span><select id="dg-time-select"></select></label><button class="btn sm primary" data-act="save-time" type="button">Save</button><button class="btn sm ghost" data-act="cancel-time" type="button">Cancel</button></span></dd>
             <dt>To</dt><dd>Amy, communications lead</dd>
-            <dt>Covers</dt><dd>Since 1:00 p.m. the previous day</dd>
+            <dt>Covers</dt><dd>Since <span class="dg-time">1:00 p.m.</span> the previous day</dd>
             <dt>Status</dt><dd><span class="sim">Not scheduled</span></dd>
           </dl>
-          <p>Email delivery isn't set up yet. While the dashboard is open, it shows a notice at 1:00 p.m. Atlantic time, and each digest you generate is saved for the team.</p>
+          <p>Email delivery isn't set up yet. While the dashboard is open, it shows a notice at <span class="dg-time">1:00 p.m.</span> Atlantic time, and each digest you generate is saved for the team.</p>
+          <p id="dg-time-meta" style="font-size:12px;color:var(--fg-3)"></p>
           <p id="gen-meta" class="mono" style="font-size:12px;color:var(--fg-3)"></p>
         </aside>
       </div>
@@ -535,7 +541,7 @@ body.locked #auth-gate{display:grid}
             <tr><td>Approve reply</td><td class="yes">Works</td><td>Records who approved it and when. Never posts. You copy it and post it yourself.</td></tr>
             <tr><td>Moderation decisions</td><td class="yes">Works</td><td>Records your decision. Never hides, deletes or blocks anything. You act in the platform yourself.</td></tr>
             <tr><td>Spoken catch-up</td><td class="yes">Works</td><td>Reads the digest aloud using your device's built-in voice. Free, and nothing is sent anywhere. Flagged comments are never read out.</td></tr>
-            <tr><td>1:00 p.m. digest</td><td class="yes">Summary works</td><td>"Generate digest" builds it from current data. Email delivery and scheduling aren't set up yet.</td></tr>
+            <tr><td>Daily digest</td><td class="yes">Summary works</td><td>"Generate digest" builds it from current data. Email delivery and scheduling aren't set up yet.</td></tr>
             <tr><td>New activity arriving</td><td class="sim">Not connected yet</td><td>Starts once Facebook, Instagram and LinkedIn are connected. Nothing is synced today.</td></tr>
             <tr><td>Connected accounts</td><td class="sim">Setup in progress</td><td>The page is ready. Connecting opens once Volta's Meta and LinkedIn developer setup is finished.</td></tr>
           </tbody>
@@ -547,7 +553,7 @@ body.locked #auth-gate{display:grid}
           <ul>
             <li>One company account per platform: a LinkedIn page, a Facebook page and an Instagram business profile.</li>
             <li>Any invited team member can review and approve. Admins manage connected accounts.</li>
-            <li>Volta's time zone is Atlantic (AST). The digest window is 1:00 p.m. to 1:00 p.m.</li>
+            <li>Volta's time zone is Atlantic (AST). The digest covers the 24 hours before the chosen digest time (1:00 p.m. by default). Admins can change the time on the digest page.</li>
             <li>Urgent means media requests, billing problems, stated deadlines and possible inappropriate content.</li>
             <li>The voice is warm, short and plain, with Canadian spelling and a personal sign-off.</li>
           </ul>
@@ -658,14 +664,26 @@ function tzOffsetMin(ts){
   const m=p.match(/GMT([+-])(\d{2}):?(\d{2})?/); if(!m) return 0;
   return (m[1]==='-'?-1:1)*(+m[2]*60+(+m[3]||0));
 }
-function halifaxAt(dayOffset,hour){
+function halifaxAt(dayOffset,hour,minute){
   const parts=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
   const g=t=>+parts.find(x=>x.type===t).value;
-  const guess=Date.UTC(g('year'),g('month')-1,g('day')+dayOffset,hour,0,0);
+  const guess=Date.UTC(g('year'),g('month')-1,g('day')+dayOffset,hour,minute||0,0);
   return guess-tzOffsetMin(guess)*60000;
 }
-const digestAt=()=>halifaxAt(0,13);       // today 1:00 p.m. Atlantic
-const windowStart=()=>halifaxAt(-1,13);   // yesterday 1:00 p.m. Atlantic
+// The team's chosen digest time (Atlantic), stored in Supabase. Default 1:00 p.m.
+const DEFAULT_DIGEST={digest_hour:13,digest_minute:0};
+const dg=()=>(typeof S!=='undefined'&&S.settings)||DEFAULT_DIGEST;
+const digestAt=()=>halifaxAt(0,dg().digest_hour,dg().digest_minute);        // today at the digest time
+const windowStart=()=>halifaxAt(-1,dg().digest_hour,dg().digest_minute);    // yesterday at the digest time
+function clockLabel(h,m){ return `${h%12||12}:${String(m).padStart(2,'0')} ${h<12?'a.m.':'p.m.'}`; }
+const digestLabel=()=>clockLabel(dg().digest_hour,dg().digest_minute);
+function spokenClock(h,m){
+  const W=['twelve','one','two','three','four','five','six','seven','eight','nine','ten','eleven'];
+  const mm={0:'o’clock',15:'fifteen',30:'thirty',45:'forty-five'}[m]||String(m);
+  const part=h<12?' in the morning':h>=17?' in the evening':'';
+  return (h===12&&m===0)?'noon':`${W[h%12]} ${mm}${part}`;
+}
+const digestSpoken=()=>spokenClock(dg().digest_hour,dg().digest_minute);
 
 const PLAT={
   linkedin:{name:'LinkedIn',short:'LI',account:'Volta · company page'},
@@ -777,7 +795,23 @@ async function loadAll(){
   S.items=ir.data.map(r=>fromRow(r,dm[r.id],lm[r.id]||[]));
   S.conns=cr.data;
   S.team=tr.data;
+  const st=await sb.from('app_settings').select('*').eq('id',1).maybeSingle();
+  if(!st.error&&st.data) S.settings=st.data;
   loaded=true;
+}
+function renderDigestTime(){
+  const label=digestLabel();
+  document.querySelectorAll('.dg-time').forEach(e=>{ e.textContent=label; });
+  const admin=me&&me.role==='admin', editing=!$('#dg-time-edit').hidden;
+  $('#dg-time-change').hidden=!admin||editing;
+  const s=S.settings;
+  $('#dg-time-meta').textContent=s&&s.updated_by_email?`Set to ${label} by ${s.updated_by_email}.`:(admin?'Admins can change the time for the whole team.':'');
+}
+function fillTimeOptions(){
+  const sel=$('#dg-time-select'), cur=dg().digest_hour*60+dg().digest_minute, opts=[];
+  for(let t=6*60;t<=21*60;t+=15) opts.push(t);
+  if(!opts.includes(cur)) opts.push(cur), opts.sort((a,b)=>a-b);
+  sel.innerHTML=opts.map(t=>`<option value="${t}"${t===cur?' selected':''}>${clockLabel(Math.floor(t/60),t%60)}</option>`).join('');
 }
 const emailOf=id=>((S.team||[]).find(t=>t.user_id===id)||{}).email||'a teammate';
 function fail(e){ console.error(e); toast('Couldn’t save that change. Check your connection and refresh the page.'); }
@@ -854,7 +888,7 @@ function renderMetrics(){
   const act=(k)=>{ if(k==='urgent') return F.priority==='urgent'&&F.status==='open'; if(k==='needs') return F.priority==='needs'&&F.status==='open'; if(k==='reviewed') return F.status==='reviewed'&&!F.priority; return !F.priority&&!F.status&&!F.platform&&!F.type&&!F.q; };
   const tile=(k,label,color,v,sub)=>`<button class="metric${act(k)?' active':''}" data-act="metric" data-k="${k}" aria-pressed="${act(k)}"><span class="k"><i style="background:${color}"></i>${label}</span><span class="v">${v}</span><span class="s">${sub}</span></button>`;
   $('#metrics').innerHTML=
-    tile('total','Total interactions','var(--fg-3)',it.length,`${it.filter(i=>i.status==='new').length} unread · since yesterday 1 p.m.`)+
+    tile('total','Total interactions','var(--fg-3)',it.length,`${it.filter(i=>i.status==='new').length} unread · since yesterday ${digestLabel()}`)+
     tile('urgent','Urgent','var(--urgent)',urg.length,`${modP} in moderation queue`)+
     tile('needs','Needs response','var(--needs)',nr.length,`${fu} marked for follow-up overall`)+
     tile('reviewed','Reviewed','var(--done)',rv.length,`${Math.round(rv.length/Math.max(1,it.length)*100)}% of today's activity`);
@@ -1003,11 +1037,11 @@ function buildDigest(){
   const sec=(title,pillHtml,items,fn,none)=>`<section class="e-sec"><h3>${title} ${pillHtml}</h3>${items.length?`<ul>${items.map(fn).join('')}</ul>`:`<p class="e-none">${none}</p>`}</section>`;
   const max=Math.max(1,cnt('linkedin'),cnt('facebook'),cnt('instagram'));
   const top=urgent[0];
-  const lede=`${inWin.length} interactions since yesterday at 1:00 p.m. across LinkedIn (${cnt('linkedin')}), Facebook (${cnt('facebook')}) and Instagram (${cnt('instagram')}). `+
+  const lede=`${inWin.length} interactions since yesterday at ${digestLabel()} across LinkedIn (${cnt('linkedin')}), Facebook (${cnt('facebook')}) and Instagram (${cnt('instagram')}). `+
     (urgent.length?`${urgent.length} urgent ${urgent.length===1?'item needs':'items need'} you first${top?`, starting with ${top.sender}`:''}. `:'Nothing urgent is open. ')+
     `${needs.length} ${needs.length===1?'needs':'need'} a reply and ${modQ.length} ${modQ.length===1?'comment is':'comments are'} waiting in moderation.`;
   digestHTML=`
-    <dl class="e-head"><dt>From</dt><dd>Volta Command Centre</dd><dt>To</dt><dd>Amy</dd><dt>Subject</dt><dd><b>Your 1:00 p.m. social digest · ${urgent.length} urgent, ${needs.length} to reply</b></dd><dt>Covers</dt><dd>${fmtFull(windowStart())} to ${fmtFull(now)}</dd></dl>
+    <dl class="e-head"><dt>From</dt><dd>Volta Command Centre</dd><dt>To</dt><dd>Amy</dd><dt>Subject</dt><dd><b>Your ${digestLabel()} social digest · ${urgent.length} urgent, ${needs.length} to reply</b></dd><dt>Covers</dt><dd>${fmtFull(windowStart())} to ${fmtFull(now)}</dd></dl>
     <div class="e-body">
       <div><h2>Good afternoon, Amy.</h2><p class="e-lede">${esc(lede)}</p></div>
       ${sec('Do first','<span class="pill urgent">'+urgent.length+'</span>',urgent,i=>line(i),'No open urgent items. Nice work.')}
@@ -1019,7 +1053,7 @@ function buildDigest(){
       <section class="e-sec"><h3>Already handled</h3><p class="e-none" style="padding:0">${reviewed} reviewed · ${fu.length} marked for follow-up · ${approvedR} ${approvedR===1?'reply':'replies'} approved and waiting for you to post</p></section>
       <p class="e-none" style="padding:0;font-size:12px">Prioritized by keyword rules. Nothing was sent.</p>
     </div>`;
-  digestText=[`YOUR 1:00 P.M. SOCIAL DIGEST`,`Covers ${fmtFull(windowStart())} to ${fmtFull(now)}`,``,lede,``,
+  digestText=[`YOUR ${digestLabel().toUpperCase()} SOCIAL DIGEST`,`Covers ${fmtFull(windowStart())} to ${fmtFull(now)}`,``,lede,``,
     `DO FIRST (${urgent.length})`,...urgent.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
     `MODERATION QUEUE (${modQ.length})`,...modQ.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${i.flags.map(f=>f.label).join(', ')}`),``,
     `REPLY WHEN YOU CAN (${needs.length})`,...needs.map(i=>`- [${PLAT[i.platform].name}] ${i.sender}: ${short(i.content)}`),``,
@@ -1043,7 +1077,7 @@ function renderBanner(){
   el.hidden=!loaded||any;
   el.innerHTML='<strong>No social accounts connected yet.</strong> Activity will appear here once Volta\u2019s Facebook, Instagram and LinkedIn are connected. <a href="#accounts">Go to Connected accounts</a>. Nothing is ever posted without a person\u2019s approval.';
 }
-function renderAll(){ renderBanner(); renderSide(); renderMetrics(); renderTypeOptions(); renderList(); renderDetail(); renderModeration(); renderConnections(); }
+function renderAll(){ renderBanner(); renderDigestTime(); renderSide(); renderMetrics(); renderTypeOptions(); renderList(); renderDetail(); renderModeration(); renderConnections(); }
 
 /* ---------- Views ---------- */
 const VIEWS=['inbox','moderation','digest','accounts','about'];
@@ -1103,6 +1137,24 @@ document.addEventListener('click',e=>{
     case 'goto': go(b.dataset.view); break;
     case 'gen-digest': S.digestCount=(S.digestCount||0)+1; buildDigest(); renderDigest(); saveDigest(); const d=$('#digest'); d.classList.remove('flash'); void d.offsetWidth; d.classList.add('flash'); toast('Digest regenerated from current data'); break;
     case 'copy-digest': copyText(digestText,'Digest copied as plain text'); break;
+    case 'edit-time':
+      if(!me||me.role!=='admin'){ toast('Only an admin can change the digest time'); break; }
+      fillTimeOptions(); $('#dg-time-view').hidden=true; $('#dg-time-edit').hidden=false; $('#dg-time-change').hidden=true; $('#dg-time-select').focus(); break;
+    case 'cancel-time':
+      $('#dg-time-edit').hidden=true; $('#dg-time-view').hidden=false; renderDigestTime(); break;
+    case 'save-time': {
+      const t=+$('#dg-time-select').value, h=Math.floor(t/60), m=t%60;
+      b.disabled=true;
+      sb.from('app_settings').update({digest_hour:h,digest_minute:m,updated_by:me.id,updated_by_email:me.email,updated_at:new Date().toISOString()}).eq('id',1).select().maybeSingle()
+        .then(async({data,error})=>{
+          b.disabled=false;
+          if(error||!data){ console.error(error); toast('Couldn’t change the digest time. Only admins can change it.'); return; }
+          S.settings=data; digestNotified=Date.now()>=digestAt();
+          $('#dg-time-edit').hidden=true; $('#dg-time-view').hidden=false;
+          buildDigest(); renderAll(); renderDigest();
+          toast('Digest time set to '+digestLabel()+' Atlantic for the whole team');
+        });
+      break; }
     case 'connect': {
       const p=b.dataset.p;
       toast(PLAT[p].name+' connection opens once Volta’s '+(p==='linkedin'?'LinkedIn':'Meta')+' developer setup is finished');
@@ -1134,7 +1186,7 @@ function tick(){
   $('#clock').textContent=new Date(n).toLocaleDateString('en-CA',{timeZone:TZ,weekday:'short',month:'short',day:'numeric'})+' · '+fmtTime(n);
   if(started && !digestNotified && n>=digestAt()){
     digestNotified=true; S.digestCount=(S.digestCount||0)+1; buildDigest(); if(view==='digest') renderDigest(); else $('#c-digest').hidden=false;
-    toast('1:00 p.m. digest is ready in the dashboard. Nothing was emailed.');
+    toast(digestLabel()+' digest is ready in the dashboard. Nothing was emailed.');
   }
 }
 
@@ -1220,13 +1272,13 @@ function buildPodcast(d){
   const segs=[];
   let intro=`${greet}. Here's your social media catch-up for ${day}.`;
   if(!d.inWin.length){
-    intro+=connected?' It’s been a quiet stretch. Nothing new has come in since yesterday at one o’clock.'
+    intro+=connected?' It’s been a quiet stretch. Nothing new has come in since yesterday at '+digestSpoken()+'.'
       :' Volta’s social accounts aren’t connected yet, so there’s nothing to report today. Once they’re connected, this catch-up will cover every comment, message and mention.';
     segs.push({title:'Welcome',text:intro});
     segs.push({title:'Wrap-up',text:'That’s all for now. Have a great rest of your day.'});
   }else{
     const parts=[['LinkedIn',d.cnt('linkedin')],['Facebook',d.cnt('facebook')],['Instagram',d.cnt('instagram')]].filter(p=>p[1]).map(p=>`${numWord(p[1])} on ${p[0]}`);
-    intro+=` Since yesterday at one o’clock, ${numWord(d.inWin.length)} ${plural(d.inWin.length,'interaction has','interactions have')} come in: ${parts.length>1?parts.slice(0,-1).join(', ')+' and '+parts.slice(-1):parts[0]}.`;
+    intro+=` Since yesterday at ${digestSpoken()}, ${numWord(d.inWin.length)} ${plural(d.inWin.length,'interaction has','interactions have')} come in: ${parts.length>1?parts.slice(0,-1).join(', ')+' and '+parts.slice(-1):parts[0]}.`;
     intro+=d.urgent.length?` ${numWord(d.urgent.length).replace(/^./,c=>c.toUpperCase())} ${plural(d.urgent.length,'thing needs','things need')} your attention first.`:' Nothing urgent is waiting, which is good news.';
     segs.push({title:'Welcome',text:intro});
     if(d.urgent.length){
