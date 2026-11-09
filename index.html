@@ -232,7 +232,7 @@ textarea{width:100%;min-height:150px;resize:vertical;border:1px solid var(--bord
 #dg-time-change{margin-left:4px;padding:2px 8px}
 
 /* Spoken catch-up (podcast) */
-.pod{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px 14px;align-items:center}
+.pod{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:center}
 .pod-icon{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
 .pod-icon svg{width:22px;height:22px}
 .pod-title{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
@@ -241,14 +241,18 @@ textarea{width:100%;min-height:150px;resize:vertical;border:1px solid var(--bord
 .pod-status{font-size:13px;color:var(--fg-2)}
 .pod-bar{height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:6px}
 .pod-bar span{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
-.pod-ctrls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.pod-ctrls{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .pod-ctrls select{padding:6px 8px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg);font-size:13px;max-width:180px}
 .pod-script{grid-column:1/-1;font-size:13px;color:var(--fg-2)}
 .pod-script summary{cursor:pointer;color:var(--accent);font-weight:600;width:max-content}
 .pod-script p{margin:8px 0 0;max-width:72ch}
 .pod-script p b{color:var(--fg)}
+.pod-script p.pod-sec{margin-top:14px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label)}
+.seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:99px;padding:2px;background:var(--bg)}
+.seg button{border:0;background:none;color:var(--fg-2);font:inherit;font-size:13px;font-weight:600;padding:5px 12px;border-radius:99px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--border-strong)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .pod.unsupported .pod-ctrls{display:none}
-@media (max-width:899px){.pod{grid-template-columns:auto minmax(0,1fr)}.pod-ctrls{grid-column:1/-1;justify-content:flex-start}}
 
 /* Digest */
 .digest-wrap{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start}
@@ -479,15 +483,16 @@ body.locked #auth-gate{display:grid}
         <div class="pod-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="7" rx="1.5"/><rect x="17" y="14" width="4" height="7" rx="1.5"/></svg></div>
         <div class="pod-main">
           <div class="pod-title"><b id="pod-title">Today's catch-up</b><span class="pod-len" id="pod-len"></span></div>
-          <div class="pod-status" id="pod-status" aria-live="polite">A short spoken version of the digest, read aloud by your device.</div>
+          <div class="pod-status" id="pod-status" aria-live="polite">A short spoken version of the digest.</div>
           <div class="pod-bar" aria-hidden="true"><span id="pod-fill"></span></div>
         </div>
         <div class="pod-ctrls" id="pod-ctrls">
+          <div class="seg" role="group" aria-label="Number of hosts"><button type="button" data-act="pod-hosts" data-n="1" aria-pressed="true">1 host</button><button type="button" data-act="pod-hosts" data-n="2" aria-pressed="false">2 hosts</button></div>
           <button class="btn primary" id="pod-play" data-act="pod-play" type="button">Play</button>
           <button class="btn" data-act="pod-skip" type="button">Next section</button>
           <button class="btn ghost" data-act="pod-restart" type="button">Restart</button>
           <label><span class="sr">Speed</span><select id="pod-rate"><option value="1">1×</option><option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option></select></label>
-          <label><span class="sr">Voice</span><select id="pod-voice"><option value="">Default voice</option></select></label>
+          <label><span class="sr">Voice</span><select id="pod-engine"><option value="natural">Natural voice</option><option value="device">Device voice</option></select></label>
         </div>
         <details class="pod-script"><summary>Read the script</summary><div id="pod-script"></div></details>
       </section>
@@ -548,7 +553,7 @@ body.locked #auth-gate{display:grid}
             <tr><td>Suggested replies</td><td class="sim">Templates</td><td>Pre-written Volta-voice templates chosen by the matching rule. Editable. Facts you must check appear in [brackets] and block approval.</td></tr>
             <tr><td>Approve reply</td><td class="yes">Works</td><td>Records who approved it and when. Never posts. You copy it and post it yourself.</td></tr>
             <tr><td>Moderation decisions</td><td class="yes">Works</td><td>Records your decision. Never hides, deletes or blocks anything. You act in the platform yourself.</td></tr>
-            <tr><td>Spoken catch-up</td><td class="yes">Works</td><td>Reads the digest aloud using your device's built-in voice. Free, and nothing is sent anywhere. Flagged comments are never read out.</td></tr>
+            <tr><td>Spoken catch-up</td><td class="yes">Works</td><td>Reads the digest aloud like a short podcast, with one host or two. The natural voice is a free, open-source voice model (Kokoro) that runs in your browser: it downloads once (about 90 to 330 MB, depending on the computer), and the digest itself isn't sent to any voice service. You can switch to your device's built-in voice at any time. Flagged comments are never read out.</td></tr>
             <tr><td>Daily digest</td><td class="yes">Summary works</td><td>"Generate digest" builds it from current data. Email delivery and scheduling aren't set up yet.</td></tr>
             <tr><td>New activity arriving</td><td class="sim">Not connected yet</td><td>Starts once Facebook, Instagram and LinkedIn are connected. Nothing is synced today.</td></tr>
             <tr><td>Connected accounts</td><td class="sim">Setup in progress</td><td>The page is ready. Connecting opens once Volta's Meta and LinkedIn developer setup is finished.</td></tr>
@@ -1263,10 +1268,19 @@ async function start(session){
   if(window.matchMedia('(min-width:1180px)').matches){ const first=filtered()[0]; if(first){ selected=first.id; renderList(); renderDetail(); } }
   setView(location.hash.slice(1)||'inbox');
 }
-/* ---------- Spoken catch-up: the digest as a short podcast, read by the device's own voice ---------- */
+/* ---------- Spoken catch-up: the digest as a short podcast, with one or two hosts ----------
+   Natural voice = the free Kokoro model running in this browser (assets/tts-worker.js).
+   Device voice  = the browser's built-in speech. Both are free and keep the digest on this computer. */
 const SPEECH=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
-const pod={segs:[],queue:[],pos:0,playing:false,tok:0,rate:1,voice:''};
-try{ pod.rate=+(localStorage.getItem('volta-pod-rate')||1)||1; pod.voice=localStorage.getItem('volta-pod-voice')||''; }catch(e){}
+const NATURAL_OK=('Worker' in window)&&(typeof WebAssembly==='object');
+const HOSTS=[{name:'Maya',voice:'af_heart'},{name:'Sam',voice:'am_michael'}];
+const pod={segs:[],queue:[],pos:0,playing:false,tok:0,rate:1,hosts:1,engine:NATURAL_OK?'natural':'device'};
+try{
+  pod.rate=+(localStorage.getItem('volta-pod-rate')||1)||1;
+  pod.hosts=localStorage.getItem('volta-pod-hosts')==='2'?2:1;
+  const en=localStorage.getItem('volta-pod-engine'); if(en==='device'||(en==='natural'&&NATURAL_OK)) pod.engine=en;
+}catch(e){}
+if(!SPEECH&&NATURAL_OK) pod.engine='natural';
 const RULE_SAY={media:'a media request',billing:'a billing problem',deadline:'a request with a deadline',access:'an accessibility question',
   partner:'a partnership opportunity',complaint:'a complaint',job:'a question about a job posting',application:'a question about applications',
   event:'a question about an event',question:'a question',dm:'a direct message',positive:'some kind words',share:'a share'};
@@ -1277,112 +1291,220 @@ function speakable(s){
     .replace(/\s+/g,' ').trim();
 }
 const sayName=n=>speakable(String(n||'someone').replace(/^@/,'').replace(/[._]+/g,' '));
-function firstSentence(s,max){ const t=speakable(s); const m=t.match(/^.*?[.?!](?=\s+[A-Z\u201c"]|$)/); let o=(m?m[0]:t).trim(); const w=o.split(' '); if(w.length>max) o=w.slice(0,max).join(' ')+'…'; return o; }
+function firstSentence(s,max){ const t=speakable(s); const m=t.match(/^.*?[.?!](?=\s+[A-Z“"]|$)/); let o=(m?m[0]:t).trim(); const w=o.split(' '); if(w.length>max) o=w.slice(0,max).join(' ')+'…'; return o; }
 const plural=(n,one,many)=>n===1?one:many;
 const numWord=n=>['no','one','two','three','four','five','six','seven','eight','nine','ten'][n]||String(n);
+const cap=s=>s.replace(/^./,c=>c.toUpperCase());
+const andList=a=>a.length>1?a.slice(0,-1).join(', ')+' and '+a.slice(-1):(a[0]||'');
+// Each section has a one-host version (solo) and a two-host version (duo: [host index, line]).
 function buildPodcast(d){
   const hr=+new Intl.DateTimeFormat('en-CA',{timeZone:TZ,hour:'numeric',hourCycle:'h23'}).format(new Date(d.now));
   const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
   const day=new Date(d.now).toLocaleDateString('en-CA',{timeZone:TZ,weekday:'long',month:'long',day:'numeric'});
   const connected=(S.conns||[]).some(c=>c.status==='connected');
-  const segs=[];
-  let intro=`${greet}. Here's your social media catch-up for ${day}.`;
+  const A=0,B=1, segs=[], add=(title,solo,duo)=>segs.push({title,solo,duo});
+  const hello=[[A,`${greet}, and welcome to Volta’s social media catch-up for ${day}. I’m ${HOSTS[0].name}.`]];
   if(!d.inWin.length){
-    intro+=connected?' It’s been a quiet stretch. Nothing new has come in since yesterday at '+digestSpoken()+'.'
-      :' Volta’s social accounts aren’t connected yet, so there’s nothing to report today. Once they’re connected, this catch-up will cover every comment, message and mention.';
-    segs.push({title:'Welcome',text:intro});
-    segs.push({title:'Wrap-up',text:'That’s all for now. Have a great rest of your day.'});
+    const rest=connected?`It’s been a quiet stretch. Nothing new has come in since yesterday at ${digestSpoken()}.`
+      :'Volta’s social accounts aren’t connected yet, so there’s nothing to report today. Once they’re connected, this catch-up will cover every comment, message and mention.';
+    add('Welcome',`${greet}. Here's your social media catch-up for ${day}. ${rest}`,[...hello,[B,`And I’m ${HOSTS[1].name}. ${rest}`]]);
+    add('Wrap-up','That’s all for now. Have a great rest of your day.',[[A,'So that’s all for now.'],[B,'Have a great rest of your day.']]);
   }else{
     const parts=[['LinkedIn',d.cnt('linkedin')],['Facebook',d.cnt('facebook')],['Instagram',d.cnt('instagram')]].filter(p=>p[1]).map(p=>`${numWord(p[1])} on ${p[0]}`);
-    intro+=` Since yesterday at ${digestSpoken()}, ${numWord(d.inWin.length)} ${plural(d.inWin.length,'interaction has','interactions have')} come in: ${parts.length>1?parts.slice(0,-1).join(', ')+' and '+parts.slice(-1):parts[0]}.`;
-    intro+=d.urgent.length?` ${numWord(d.urgent.length).replace(/^./,c=>c.toUpperCase())} ${plural(d.urgent.length,'thing needs','things need')} your attention first.`:' Nothing urgent is waiting, which is good news.';
-    segs.push({title:'Welcome',text:intro});
+    const total=`Since yesterday at ${digestSpoken()}, ${numWord(d.inWin.length)} ${plural(d.inWin.length,'interaction has','interactions have')} come in: ${andList(parts)}.`;
+    const urg=d.urgent.length?`${cap(numWord(d.urgent.length))} ${plural(d.urgent.length,'thing needs','things need')} your attention first.`:'Nothing urgent is waiting, which is good news.';
+    add('Welcome',`${greet}. Here's your social media catch-up for ${day}. ${total} ${urg}`,[...hello,[B,`And I’m ${HOSTS[1].name}. ${total}`],[A,urg]]);
     if(d.urgent.length){
-      const lines=d.urgent.slice(0,5).map((i,n)=>`${n===0?'First':n===1?'Next':'Also'}, ${sayName(i.sender)} sent ${RULE_SAY[i.rule]||'a message'} on ${PLAT[i.platform].name}. They wrote: “${firstSentence(i.content,24)}”`);
-      if(d.urgent.length>5) lines.push(`There are ${d.urgent.length-5} more urgent items in the inbox.`);
-      segs.push({title:'Do first',text:'Let’s start with what needs you first. '+lines.join(' ')});
+      const items=d.urgent.slice(0,5).map((i,n)=>({lead:`${n===0?'First':n===1?'Next':'Also'}, ${sayName(i.sender)} sent ${RULE_SAY[i.rule]||'a message'} on ${PLAT[i.platform].name}.`,quote:`They wrote: “${firstSentence(i.content,24)}”`}));
+      const more=d.urgent.length>5?`There are ${d.urgent.length-5} more urgent items in the inbox.`:'';
+      add('Do first','Let’s start with what needs you first. '+items.map(x=>x.lead+' '+x.quote).join(' ')+(more?' '+more:''),
+        [[A,`Let’s start with what needs attention first. ${HOSTS[1].name}, what came in?`],...items.flatMap(x=>[[B,x.lead],[A,x.quote]]),...(more?[[B,'And '+more.replace(/^./,c=>c.toLowerCase())]]:[])]);
     }
     if(d.modQ.length){
-      segs.push({title:'Moderation',text:`${numWord(d.modQ.length).replace(/^./,c=>c.toUpperCase())} ${plural(d.modQ.length,'comment is','comments are')} waiting in moderation because ${plural(d.modQ.length,'it','they')} may be abusive or spam, or may include personal information. ${plural(d.modQ.length,'It isn’t','They aren’t')} read out here. Please review ${plural(d.modQ.length,'it','them')} in the Moderation tab.`});
+      const n=d.modQ.length, it=plural(n,'it','them'), they=plural(n,'it','they');
+      const head=`${cap(numWord(n))} ${plural(n,'comment is','comments are')} waiting in moderation`;
+      add('Moderation',`${head} because ${they} may be abusive or spam, or may include personal information. ${plural(n,'It isn’t','They aren’t')} read out here. Please review ${it} in the Moderation tab.`,
+        [[B,head+'.'],[A,`We won’t read ${it} out, because ${they} may be abusive or spam, or may include personal information. Please review ${it} in the Moderation tab.`]]);
     }
     if(d.needs.length){
       const top=d.needs.slice(0,3).map(i=>`${sayName(i.sender)} on ${PLAT[i.platform].name}, with ${RULE_SAY[i.rule]||'a question'}`);
-      segs.push({title:'Reply when you can',text:`When you have a moment, ${numWord(d.needs.length)} ${plural(d.needs.length,'person is','people are')} waiting for a reply. ${top.length?'That includes '+(top.length>1?top.slice(0,-1).join('; ')+'; and '+top.slice(-1):top[0])+'.':''}`});
+      const head=`When you have a moment, ${numWord(d.needs.length)} ${plural(d.needs.length,'person is','people are')} waiting for a reply.`;
+      const incl=top.length?'That includes '+(top.length>1?top.slice(0,-1).join('; ')+'; and '+top.slice(-1):top[0])+'.':'';
+      add('Reply when you can',`${head} ${incl}`.trim(),[[A,head],...(incl?[[B,incl]]:[])]);
     }
     if(d.good.length){
       const g=d.good.slice(0,2).map(i=>`${sayName(i.sender)} on ${PLAT[i.platform].name} wrote: “${firstSentence(i.content,20)}”`);
-      segs.push({title:'Good news',text:'Some good news to share. '+g.join(' And ')+' These could be worth a like or a reshare.'});
+      add('Good news','Some good news to share. '+g.join(' And ')+' These could be worth a like or a reshare.',
+        [[B,'Now for some good news.'],...g.map((x,k)=>[k%2?B:A,(k?'And ':'')+x]),[B,'Those could be worth a like or a reshare.']]);
     }
     const done=[];
     if(d.reviewed) done.push(`${numWord(d.reviewed)} ${plural(d.reviewed,'item has','items have')} already been reviewed`);
     if(d.fu.length) done.push(`${numWord(d.fu.length)} ${plural(d.fu.length,'is','are')} marked for follow-up`);
     if(d.approvedR) done.push(`${numWord(d.approvedR)} approved ${plural(d.approvedR,'reply is','replies are')} waiting to be posted`);
-    segs.push({title:'Wrap-up',text:(done.length?'Before you go: '+done.join(', ')+'. ':'')+'That’s your catch-up. Have a great rest of your day.'});
+    const before=done.length?'Before you go: '+done.join(', ')+'.':'';
+    add('Wrap-up',(before?before+' ':'')+'That’s your catch-up. Have a great rest of your day.',
+      [...(before?[[A,before]]:[]),[B,'That’s your catch-up. Have a great rest of your day.'],[A,'See you next time.']]);
   }
   pod.segs=segs;
-  const words=segs.reduce((n,s)=>n+s.text.split(/\s+/).length,0);
+  renderPodScript();
+  if(!pod.playing&&!(pod.queue.length&&pod.pos>0)) pod.queue=[];
+}
+const podLines=s=>pod.hosts===2?s.duo:[[0,s.solo]];
+function renderPodScript(){
+  const words=pod.segs.reduce((n,s)=>n+podLines(s).reduce((m,l)=>m+l[1].split(/\s+/).length,0),0);
   const secs=Math.max(15,Math.round(words/(155*pod.rate)*60));
   const len=$('#pod-len'); if(len) len.textContent=secs<60?`about ${secs} seconds`:`about ${Math.round(secs/60)} min`;
-  const sc=$('#pod-script'); if(sc) sc.innerHTML=segs.map(s=>`<p><b>${esc(s.title)}.</b> ${esc(s.text)}</p>`).join('');
+  const sc=$('#pod-script'); if(!sc) return;
+  sc.innerHTML=pod.hosts===2
+    ? pod.segs.map(s=>`<p class="pod-sec">${esc(s.title)}</p>`+s.duo.map(([h,t])=>`<p><b>${esc(HOSTS[h].name)}:</b> ${esc(t)}</p>`).join('')).join('')
+    : pod.segs.map(s=>`<p><b>${esc(s.title)}.</b> ${esc(s.solo)}</p>`).join('');
 }
+function buildQueue(){
+  pod.queue=[]; pod.pos=0; pod.qid=(pod.qid||0)+1;
+  pod.segs.forEach((s,si)=>{ const lines=podLines(s);
+    lines.forEach(([h,txt],li)=>{ const parts=txt.split(/(?<=[.!?…][”"]?)\s+(?=[A-Z“"])/).map(t=>t.trim()).filter(Boolean);
+      parts.forEach((t,k)=>{ const last=k===parts.length-1; pod.queue.push({si,h,t,gap:!last?110:li===lines.length-1?520:260}); }); }); });
+}
+
+/* Device voice (browser speech) */
 function podVoices(){
   if(!SPEECH) return [];
   const score=v=>(/premium|enhanced|natural|neural/i.test(v.name)?4:0)+(/google|siri/i.test(v.name)?2:0)+(/en[-_]CA/i.test(v.lang)?1.5:/en[-_](US|GB)/i.test(v.lang)?1:0)+(v.localService?0.2:0);
   return speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).sort((a,b)=>score(b)-score(a));
 }
-function fillVoices(){
-  const sel=$('#pod-voice'); if(!sel) return;
-  const vs=podVoices(); if(!vs.length) return;
-  if(!pod.voice||!vs.some(v=>v.voiceURI===pod.voice)) pod.voice=vs[0].voiceURI;
-  sel.innerHTML=vs.map(v=>`<option value="${esc(v.voiceURI)}"${v.voiceURI===pod.voice?' selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('');
+function deviceVoice(h){ const vs=podVoices(); if(!h) return vs[0]; return vs.find(v=>vs[0]&&v.name.split(' ')[0]!==vs[0].name.split(' ')[0])||vs[1]||vs[0]; }
+function deviceSay(q,done){
+  const u=new SpeechSynthesisUtterance(q.t), v=deviceVoice(pod.hosts===2?q.h:0);
+  if(v){ u.voice=v; u.lang=v.lang; } else u.lang='en-CA';
+  u.rate=pod.rate; u.pitch=pod.hosts===2&&q.h&&!v?0.85:1;
+  u.onend=done; u.onerror=e=>{ if(e&&(e.error==='interrupted'||e.error==='canceled')) return; done(); };
+  speechSynthesis.speak(u);
 }
+
+/* Natural voice (Kokoro, in a background worker) */
+const nat={worker:null,state:'idle',pct:0,mb:0,device:'',gen:0,cache:new Map(),wait:new Map()};
+const podAudio=new Audio(); podAudio.preload='auto';
+const SILENT='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=';
+function natWorker(){
+  if(nat.worker) return nat.worker;
+  const w=nat.worker=new Worker('assets/tts-worker.js',{type:'module'});
+  w.onmessage=e=>{ const m=e.data||{};
+    if(m.type==='progress'){ nat.pct=Math.min(99,Math.round(m.loaded/m.total*100)); nat.mb=Math.round(m.total/1e6/10)*10; if(nat.state==='loading') podStatus(); }
+    else if(m.type==='ready'){ nat.state='ready'; nat.device=m.device; podStatus(); }
+    else if(m.type==='audio'||m.type==='error'||m.type==='skipped'){
+      if(m.type==='error'&&!m.id){ natFailed(m.error); return; }
+      const r=nat.wait.get(m.id); if(!r) return; nat.wait.delete(m.id);
+      if(m.type==='audio'){ const url=URL.createObjectURL(m.blob); nat.cache.set(m.id,Promise.resolve(url)); r.res(url); }
+      else { nat.cache.delete(m.id); r.rej(new Error(m.error||'skipped')); }
+    }
+  };
+  w.onerror=ev=>{ ev.preventDefault&&ev.preventDefault(); natFailed('worker'); };
+  return w;
+}
+function natFailed(why){
+  console.warn('Natural voice unavailable:',why);
+  nat.state='failed'; nat.wait.forEach(r=>r.rej(new Error('failed'))); nat.wait.clear();
+  if(pod.engine==='natural'){
+    pod.engine='device'; syncPodControls();
+    if(SPEECH&&pod.playing){ podHalt(); podSpeakNext(); }
+    else { pod.playing=false; podStatus(); }
+    const st=$('#pod-status'); if(st) st.textContent=SPEECH?'The natural voice couldn’t start on this browser, so your device’s voice is reading instead.':'The natural voice couldn’t start on this browser. You can read the script below.';
+  }
+}
+function natRequest(i){
+  const q=pod.queue[i]; if(!q) return null;
+  const voice=HOSTS[pod.hosts===2?q.h:0].voice, id=`${pod.qid}:${i}:${voice}`;
+  if(nat.cache.has(id)) return nat.cache.get(id);
+  const p=new Promise((res,rej)=>nat.wait.set(id,{res,rej}));
+  p.catch(()=>{});
+  nat.cache.set(id,p);
+  natWorker().postMessage({type:'speak',id,text:q.t,voice,gen:nat.gen});
+  return p;
+}
+function natCancelPending(){
+  nat.gen++; if(nat.worker) nat.worker.postMessage({type:'cancel',gen:nat.gen});
+  nat.wait.forEach((r,id)=>{ nat.cache.delete(id); r.rej(new Error('skipped')); }); nat.wait.clear();
+}
+function natSay(i,tok,done){
+  if(nat.state==='idle'){ nat.state='loading'; natWorker().postMessage({type:'load'}); }
+  for(let k=i;k<pod.queue.length;k++) natRequest(k);   // prepare the rest of the episode in order while this line plays
+  const p=natRequest(i); let slow=setTimeout(()=>{ if(tok===pod.tok&&nat.state==='ready'){ const st=$('#pod-status'); if(st) st.textContent='Preparing the next line…'; } },700);
+  p.then(url=>{
+    clearTimeout(slow); if(tok!==pod.tok||!pod.playing) return;
+    podAudio.src=url; podAudio.dataset.idx=pod.qid+':'+i; podAudio.playbackRate=pod.rate;
+    podAudio.onended=()=>{ if(tok===pod.tok) done(); };
+    podAudio.play().then(podStatus).catch(()=>{ if(tok!==pod.tok) return; pod.playing=false; podStatus(); const st=$('#pod-status'); if(st) st.textContent='Press Play to start listening.'; });
+  },err=>{ clearTimeout(slow); if(nat.state!=='failed'&&err&&err.message!=='skipped'&&tok===pod.tok) natFailed(err.message); });
+}
+
+/* Player */
 function podStatus(){
   const st=$('#pod-status'), btn=$('#pod-play'), fill=$('#pod-fill'); if(!st) return;
-  const q=pod.queue[pod.pos];
-  if(pod.playing&&q){ st.textContent=`Playing: ${pod.segs[q.si].title} (${q.si+1} of ${pod.segs.length})`; }
-  else if(pod.queue.length&&pod.pos<pod.queue.length){ st.textContent=`Paused: ${pod.segs[q.si].title}`; }
-  else st.textContent='A short spoken version of the digest, read aloud by your device.';
-  btn.textContent=pod.playing?'Pause':(pod.queue.length&&pod.pos>0&&pod.pos<pod.queue.length?'Resume':'Play');
+  const q=pod.queue[pod.pos], who=q&&pod.hosts===2?` · ${HOSTS[q.h].name}`:'';
+  if(pod.playing&&pod.engine==='natural'&&nat.state==='loading') st.textContent=`Getting the natural voice ready. This is a one-time download${nat.mb?`, about ${nat.mb} MB`:''}… ${nat.pct}%`;
+  else if(pod.playing&&q) st.textContent=`Playing: ${pod.segs[q.si].title} (${q.si+1} of ${pod.segs.length})${who}`;
+  else if(pod.queue.length&&pod.pos<pod.queue.length&&q) st.textContent=`Paused: ${pod.segs[q.si].title}`;
+  else st.textContent=pod.engine==='natural'
+    ?'A short spoken version of the digest. The voice runs on this computer, so the digest isn’t sent to any voice service.'
+    :'A short spoken version of the digest, read aloud by your device.';
+  btn.textContent=pod.playing?'Pause':(pod.queue.length&&pod.pos<pod.queue.length?'Resume':'Play');
   fill.style.width=(pod.queue.length?Math.round(pod.pos/pod.queue.length*100):0)+'%';
 }
 function podSpeakNext(){
   if(!pod.playing) return;
   if(pod.pos>=pod.queue.length){ pod.playing=false; pod.queue=[]; pod.pos=0; podStatus(); $('#pod-status').textContent='Finished. Press Play to listen again.'; return; }
-  const tok=++pod.tok, q=pod.queue[pod.pos];
-  const u=new SpeechSynthesisUtterance(q.t);
-  const v=podVoices().find(x=>x.voiceURI===pod.voice); if(v){ u.voice=v; u.lang=v.lang; } else u.lang='en-CA';
-  u.rate=pod.rate; u.pitch=1;
-  const next=()=>{ if(tok!==pod.tok||!pod.playing) return; pod.pos++; podStatus(); setTimeout(podSpeakNext,q.end?450:120); };
-  u.onend=next; u.onerror=e=>{ if(e&&(e.error==='interrupted'||e.error==='canceled')) return; next(); };
-  speechSynthesis.speak(u); podStatus();
+  const tok=++pod.tok, i=pod.pos, q=pod.queue[i];
+  const next=()=>{ if(tok!==pod.tok||!pod.playing) return; pod.pos++; podStatus(); setTimeout(()=>{ if(tok===pod.tok) podSpeakNext(); },q.gap); };
+  if(pod.engine==='natural') natSay(i,tok,next); else deviceSay(q,next);
+  podStatus();
 }
-function podHalt(){ pod.tok++; if(SPEECH) speechSynthesis.cancel(); }
+function podHalt(){ pod.tok++; if(SPEECH) speechSynthesis.cancel(); podAudio.pause(); }
 function podPlay(){
-  if(!SPEECH) return;
+  if(!SPEECH&&!NATURAL_OK) return;
   if(pod.playing){ pod.playing=false; podHalt(); podStatus(); return; }
-  if(!pod.queue.length||pod.pos>=pod.queue.length){
-    if(!pod.segs.length) buildDigest();
-    pod.queue=[]; pod.pos=0;
-    pod.segs.forEach((s,si)=>{ const parts=s.text.split(/(?<=[.!?…][”"]?)\s+(?=[A-Z“"])/); parts.forEach((t,k)=>{ t=t.trim(); if(t) pod.queue.push({si,t,end:k===parts.length-1}); }); });
+  if(pod.engine==='natural'){
+    const resumeHere=podAudio.dataset.idx===pod.qid+':'+pod.pos&&podAudio.currentTime>0&&!podAudio.ended;
+    if(resumeHere){ podHalt(); pod.playing=true; const tok=pod.tok, q=pod.queue[pod.pos];
+      podAudio.onended=()=>{ if(tok!==pod.tok||!pod.playing) return; pod.pos++; podStatus(); setTimeout(()=>{ if(tok===pod.tok) podSpeakNext(); },q.gap); };
+      podAudio.playbackRate=pod.rate; podAudio.play().then(podStatus).catch(()=>{}); podStatus(); return; }
+    // Unlock audio playback while we still have the click (needed by Safari)
+    try{ podAudio.src=SILENT; podAudio.dataset.idx=''; podAudio.play().catch(()=>{}); }catch(e){}
   }
+  if(!pod.queue.length||pod.pos>=pod.queue.length){ if(!pod.segs.length) buildDigest(); buildQueue(); }
   podHalt(); pod.playing=true; podSpeakNext();
 }
 function podSkip(){
   if(!pod.queue.length){ podPlay(); return; }
   const cur=(pod.queue[pod.pos]||{}).si; let i=pod.pos; while(i<pod.queue.length&&pod.queue[i].si===cur) i++;
-  pod.pos=i; podHalt(); if(pod.playing) podSpeakNext(); else podStatus();
+  pod.pos=i; podHalt(); natCancelPending(); if(pod.playing) podSpeakNext(); else podStatus();
 }
-function podRestart(){ podHalt(); pod.queue=[]; pod.pos=0; pod.playing=false; podPlay(); }
-if(SPEECH){ fillVoices(); speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',fillVoices):(speechSynthesis.onvoiceschanged=fillVoices); }
-else { const p=$('#pod'); if(p){ p.classList.add('unsupported'); $('#pod-status').textContent='This browser can’t read aloud. Try Chrome, Edge or Safari, or read the script below.'; } }
+function podRestart(){ podHalt(); natCancelPending(); pod.queue=[]; pod.pos=0; pod.playing=false; podPlay(); }
+// Switching hosts or voice mid-way restarts the current section in the new format
+function podReformat(){
+  const si=(pod.queue[pod.pos]||{}).si, was=pod.playing;
+  podHalt(); natCancelPending(); renderPodScript();
+  if(!pod.queue.length){ podStatus(); return; }
+  buildQueue(); const j=pod.queue.findIndex(q=>q.si===si); pod.pos=j<0?0:j;
+  pod.playing=was; if(was) podSpeakNext(); else podStatus();
+}
+function syncPodControls(){
+  document.querySelectorAll('[data-act="pod-hosts"]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.n===pod.hosts)));
+  const en=$('#pod-engine'); if(en){ en.value=pod.engine; [...en.options].forEach(o=>{ o.disabled=(o.value==='natural'&&(!NATURAL_OK||nat.state==='failed'))||(o.value==='device'&&!SPEECH); }); }
+}
+if(!SPEECH&&!NATURAL_OK){ const p=$('#pod'); if(p){ p.classList.add('unsupported'); $('#pod-status').textContent='This browser can’t read aloud. Try Chrome, Edge or Safari, or read the script below.'; } }
+if(SPEECH){ speechSynthesis.getVoices(); }
 $('#pod-rate').value=String(pod.rate);
+syncPodControls(); podStatus();
 document.addEventListener('change',e=>{
-  if(e.target.id==='pod-rate'){ pod.rate=+e.target.value||1; try{localStorage.setItem('volta-pod-rate',String(pod.rate));}catch(_){} if(pod.playing){ podHalt(); podSpeakNext(); } }
-  if(e.target.id==='pod-voice'){ pod.voice=e.target.value; try{localStorage.setItem('volta-pod-voice',pod.voice);}catch(_){} if(pod.playing){ podHalt(); podSpeakNext(); } }
+  if(e.target.id==='pod-rate'){ pod.rate=+e.target.value||1; try{localStorage.setItem('volta-pod-rate',String(pod.rate));}catch(_){} renderPodScript();
+    if(pod.engine==='natural') podAudio.playbackRate=pod.rate; else if(pod.playing){ podHalt(); podSpeakNext(); } }
+  if(e.target.id==='pod-engine'){ pod.engine=e.target.value; try{localStorage.setItem('volta-pod-engine',pod.engine);}catch(_){} syncPodControls(); podReformat(); }
 });
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act^="pod-"]'); if(!b) return;
-  if(b.dataset.act==='pod-play') podPlay(); else if(b.dataset.act==='pod-skip') podSkip(); else if(b.dataset.act==='pod-restart') podRestart();
+  const a=b.dataset.act;
+  if(a==='pod-play') podPlay(); else if(a==='pod-skip') podSkip(); else if(a==='pod-restart') podRestart();
+  else if(a==='pod-hosts'){ const n=+b.dataset.n; if(n===pod.hosts) return; pod.hosts=n; try{localStorage.setItem('volta-pod-hosts',String(n));}catch(_){} syncPodControls(); podReformat(); }
 });
 
 function stop(){ podHalt(); pod.playing=false; pod.queue=[]; pod.pos=0; started=false; loaded=false; me=null; S={items:[],digestCount:0,conns:[]}; selected=null; revealed.clear(); }
